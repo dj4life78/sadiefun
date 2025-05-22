@@ -24,6 +24,21 @@
             background-color: #fbbf24; /* yellow-400 */
             color: #1e293b; /* slate-800 */
         }
+        /* Styling for the iframe container and iframe itself */
+        .iframe-container {
+            width: 100%;
+            max-width: 900px; /* Max width for the iframe content */
+            height: 70vh; /* Viewport height, adjust as needed */
+            min-height: 500px; /* Minimum height */
+            background-color: rgba(40, 43, 54, 0.7); /* Slightly transparent dark background */
+            border-radius: 0.75rem; /* Corresponds to rounded-xl */
+            overflow: hidden; /* Ensures iframe corners are also rounded if iframe bg is transparent */
+        }
+        .content-iframe {
+            width: 100%;
+            height: 100%;
+            border: none; /* Remove default iframe border */
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-900 to-purple-900 text-white min-h-screen flex flex-col items-center p-4 selection:bg-yellow-400 selection:text-slate-900">
@@ -36,7 +51,7 @@
         </div>
     </nav>
 
-    <div id="content-area" class="container mx-auto text-center p-4 md:p-8 mt-16 sm:mt-20">
+    <div id="content-area" class="container mx-auto text-center p-4 md:p-8 mt-16 sm:mt-20 w-full">
         <section id="home-section">
             <header class="mb-12 md:mb-16">
                 <h1 class="font-bungee text-4xl sm:text-5xl md:text-7xl text-yellow-300">
@@ -77,23 +92,19 @@
         </section>
 
         <section id="solar-section" class="hidden-section">
-            <div class="bg-white/10 backdrop-blur-md p-6 sm:p-10 rounded-xl shadow-xl min-h-[60vh] flex flex-col justify-center items-center">
-                <h1 class="font-bungee text-4xl sm:text-5xl text-yellow-300 mb-6">🪐 Solar System Fun 🪐</h1>
-                <p class="text-xl mb-8 text-indigo-200">This is where the awesome solar system exploration will happen!</p>
-                <div class="animate-bounce text-6xl mb-8">🚀</div>
-                <div id="solar-system-content-placeholder" class="w-full max-w-2xl h-64 bg-slate-700/50 rounded-lg flex items-center justify-center text-purple-300">
-                    Solar System Interactive Content Will Go Here
+            <div class="bg-white/10 backdrop-blur-md p-3 sm:p-6 rounded-xl shadow-xl flex flex-col justify-center items-center">
+                <h1 class="font-bungee text-3xl sm:text-4xl text-yellow-300 mb-4">🪐 Solar System Fun 🪐</h1>
+                <div class="iframe-container">
+                    <iframe id="solar-iframe" class="content-iframe" src="" title="Solar System Fun Content"></iframe>
                 </div>
             </div>
         </section>
 
         <section id="keyboard-section" class="hidden-section">
-             <div class="bg-white/10 backdrop-blur-md p-6 sm:p-10 rounded-xl shadow-xl min-h-[60vh] flex flex-col justify-center items-center">
-                <h1 class="font-bungee text-4xl sm:text-5xl text-yellow-300 mb-6">🎹 Keyboard Player 🎹</h1>
-                <p class="text-xl mb-8 text-red-200">Get ready to make some noise with the virtual keyboard!</p>
-                <div class="animate-pulse text-6xl mb-8">🎶</div>
-                 <div id="keyboard-player-content-placeholder" class="w-full max-w-2xl h-64 bg-slate-700/50 rounded-lg flex items-center justify-center text-pink-300">
-                    Keyboard Interactive Content Will Go Here
+             <div class="bg-white/10 backdrop-blur-md p-3 sm:p-6 rounded-xl shadow-xl flex flex-col justify-center items-center">
+                <h1 class="font-bungee text-3xl sm:text-4xl text-yellow-300 mb-4">🎹 Keyboard Player 🎹</h1>
+                <div class="iframe-container">
+                    <iframe id="keyboard-iframe" class="content-iframe" src="" title="Keyboard Player Content"></iframe>
                 </div>
             </div>
         </section>
@@ -114,6 +125,9 @@
         const navSolarButton = document.getElementById('nav-solar');
         const navKeyboardButton = document.getElementById('nav-keyboard');
 
+        const solarIframe = document.getElementById('solar-iframe');
+        const keyboardIframe = document.getElementById('keyboard-iframe');
+
         const sections = {
             'home': homeSection,
             'solar': solarSection,
@@ -124,6 +138,12 @@
             'home': navHomeButton,
             'solar': navSolarButton,
             'keyboard': navKeyboardButton
+        };
+
+        // URLs for iframe content
+        const iframeSources = {
+            'solar': './solar_system_fun.html', // Make sure this file exists in the same directory
+            'keyboard': './keyboard_player.html' // Make sure this file exists in the same directory
         };
 
         // Set current year in footer
@@ -138,18 +158,25 @@
 
             // Show the selected section
             if (sections[sectionId]) {
-                sections[sectionId].style.display = 'block';
+                sections[sectionId].style.display = 'block'; // Use 'block' or 'flex' depending on layout needs
+
+                // Special handling for sections with iframes to set src
+                if (sectionId === 'solar' && solarIframe.src !== iframeSources.solar) {
+                    solarIframe.src = iframeSources.solar;
+                } else if (sectionId === 'keyboard' && keyboardIframe.src !== iframeSources.keyboard) {
+                    keyboardIframe.src = iframeSources.keyboard;
+                }
+            }
+            
+            // Ensure the parent container of the iframe uses flex to center its content
+            if (sectionId === 'solar' || sectionId === 'keyboard') {
+                 sections[sectionId].style.display = 'flex';
+                 sections[sectionId].classList.add('flex-col', 'items-center', 'justify-center');
             }
 
-            // Show top navigation if not on home, or always show if preferred
-            if (sectionId === 'home') {
-                // Optionally hide top-nav if you only want it for sub-pages
-                // topNavigation.style.display = 'none'; 
-                // Or keep it visible:
-                topNavigation.style.display = 'flex'; 
-            } else {
-                topNavigation.style.display = 'flex'; // Ensure it's flex for centering
-            }
+
+            // Show top navigation
+            topNavigation.style.display = 'flex'; 
             
             // Update active state for navigation buttons
             Object.values(navButtons).forEach(button => {
@@ -160,15 +187,14 @@
             }
 
             // Scroll to top of content area for better UX on section change
-            document.getElementById('content-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // For iframe sections, it might be better to scroll the section itself into view
+            if (sections[sectionId]) {
+                 sections[sectionId].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         // Initial setup: Show home section and set active nav button
         showSection('home'); 
-        // If you want the nav bar hidden initially when on home, uncomment the next line
-        // and adjust logic in showSection if 'home' should hide it.
-        // topNavigation.style.display = 'none'; 
-
     </script>
 </body>
 </html>
