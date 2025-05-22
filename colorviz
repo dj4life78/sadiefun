@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard Color Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <style>
+        /* Custom font */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.4s ease; /* Smooth background color transition */
+            overflow-x: hidden; /* Prevent horizontal scrollbar */
+        }
+        /* Style for the key boxes */
+        .key-box {
+            padding: 1rem 1.5rem;
+            margin: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 80px;
+            min-height: 60px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            opacity: 1;
+            transition: opacity 0.5s ease-out, transform 0.2s ease-out;
+            transform: scale(1);
+        }
+        .key-box:hover {
+            transform: scale(1.05);
+        }
+        .key-box.fading-out {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        /* Ensure body takes full height and content is centered */
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f3f4f6; /* Initial Tailwind gray-100 */
+        }
+        #keyPressContainerWrapper {
+            max-height: 60vh; /* Adjusted max-height to make space for slider */
+            overflow-y: auto;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background-color: rgba(255, 255, 255, 0.9); /* Slightly transparent white for better blend */
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 10;
+        }
+        #keyPressContainer {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            min-height: 100px;
+            flex-direction: row-reverse;
+        }
+        /* Custom scrollbar */
+        #keyPressContainerWrapper::-webkit-scrollbar {
+            width: 8px;
+        }
+        #keyPressContainerWrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #keyPressContainerWrapper::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+        #keyPressContainerWrapper::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .dynamic-text-color {
+            transition: color 0.4s ease, text-shadow 0.4s ease;
+            text-shadow: 0px 0px 3px rgba(0,0,0,0.4);
+        }
+
+        /* Confetti Styles */
+        .confetti-particle {
+            position: fixed;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 1;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(0px) rotate(var(--initial-rotation, 0deg)) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(105vh) rotate(calc(var(--initial-rotation, 0deg) + 720deg)) scale(0.3);
+                opacity: 0;
+            }
+        }
+
+        /* Slider Styles */
+        #confettiControls {
+            margin-top: 1.5rem;
+            padding: 0.75rem 1rem;
+            background-color: rgba(255, 255, 255, 0.7);
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+        }
+        #confettiSlider {
+            width: 70%;
+            margin: 0 0.5rem;
+            cursor: pointer;
+        }
+        #confettiSlider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        #confettiSlider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: #4f46e5; /* Indigo-600 */
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="text-gray-800">
+    <div class="text-center p-6 md:p-8">
+        <h1 id="mainTitle" class="text-3xl md:text-4xl font-bold mb-4 text-indigo-600 dynamic-text-color">Keyboard Color Fun!</h1>
+        <p id="subTitle" class="text-lg md:text-xl text-gray-600 mb-6 dynamic-text-color">Press any key on your keyboard to see it light up with a unique color.</p>
+    </div>
+
+    <div id="keyPressContainerWrapper" class="w-full max-w-3xl mb-4">
+        <div id="keyPressContainer">
+            <span class="text-gray-400 italic dynamic-text-color">Waiting for key press...</span>
+        </div>
+    </div>
+
+    <div id="confettiControls">
+        <label for="confettiSlider" id="confettiLabel" class="dynamic-text-color font-medium">Confetti: </label>
+        <input type="range" id="confettiSlider" min="0" max="200" value="30">
+        <span id="confettiValue" class="dynamic-text-color font-medium">30</span>
+    </div>
+
+    <footer class="text-center p-4 text-sm text-gray-500 mt-4">
+        <p id="footerText" class="dynamic-text-color">Tip: Try different keys like Shift, Ctrl, Alt, or Space!</p>
+    </footer>
+
+    <script>
+        const keyPressContainer = document.getElementById('keyPressContainer');
+        let initialMessageSpan = keyPressContainer.querySelector('span.italic');
+        let keyPressCount = 0;
+        let audioStarted = false; // Flag to ensure Tone.start() is called only once
+
+        const mainTitle = document.getElementById('mainTitle');
+        const subTitle = document.getElementById('subTitle');
+        const footerText = document.getElementById('footerText');
+        
+        const confettiSlider = document.getElementById('confettiSlider');
+        const confettiValueDisplay = document.getElementById('confettiValue');
+        const confettiLabel = document.getElementById('confettiLabel');
+        let confettiAmount = parseInt(confettiSlider.value);
+
+        confettiSlider.addEventListener('input', function() {
+            confettiAmount = parseInt(this.value);
+            confettiValueDisplay.textContent = this.value;
+        });
+
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        function getKeyBoxColor(keyCodeStr) {
+            const hash = simpleHash(keyCodeStr + "_box_solid");
+            const hue = hash % 360;
+            const saturation = 70 + (hash % 21);
+            const lightness = 50 + (hash % 21);
+            return {
+                hsl: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+                lightnessValue: lightness
+            };
+        }
+        
+        function getTextureForKey(keyCodeStr) {
+            const hash = simpleHash(keyCodeStr + "_texture");
+            let gradientString = "";
+            let primaryLightness = 50;
+
+            const getRandomColorFromHash = (offset = 0, ligMin = 30, ligMax = 70) => {
+                const h = (simpleHash(keyCodeStr + "col" + offset + "tex") % 360);
+                const s = 50 + (simpleHash(keyCodeStr + "sat" + offset + "tex") % 51);
+                const l = ligMin + (simpleHash(keyCodeStr + "lig" + offset + "tex") % (ligMax - ligMin + 1));
+                return { hsl: `hsl(${h}, ${s}%, ${l}%)`, lVal: l };
+            };
+
+            const color1 = getRandomColorFromHash(0);
+            const color2 = getRandomColorFromHash(1);
+            const color3 = getRandomColorFromHash(2, 20, 80);
+            primaryLightness = color1.lVal;
+
+            const typeSelector = hash % 6;
+
+            switch (typeSelector) {
+                case 0: gradientString = `linear-gradient(${hash % 360}deg, ${color1.hsl}, ${color2.hsl})`; break;
+                case 1: const shapes = ['circle', 'ellipse']; gradientString = `radial-gradient(${shapes[hash % shapes.length]}, ${color1.hsl}, ${color2.hsl} 60%, ${color3.hsl})`; break;
+                case 2: const stripeSizeLin = 10 + (hash % 30); gradientString = `repeating-linear-gradient(${hash % 180}deg, ${color1.hsl}, ${color1.hsl} ${stripeSizeLin}px, ${color2.hsl} ${stripeSizeLin}px, ${color2.hsl} ${stripeSizeLin * 2}px)`; break;
+                case 3: const dotSizeRad = 8 + (hash % 22); gradientString = `repeating-radial-gradient(${color1.hsl}, ${color1.hsl} ${dotSizeRad}px, ${color2.hsl} ${dotSizeRad}px, ${color2.hsl} ${dotSizeRad * 2}px)`; break;
+                case 4: const checkSize = 15 + (hash % 35); gradientString = `linear-gradient(45deg, ${color1.hsl} 25%, transparent 25%, transparent 75%, ${color1.hsl} 75%, ${color1.hsl}), linear-gradient(45deg, transparent 25%, ${color2.hsl} 25%, ${color2.hsl} 75%, transparent 75%, transparent)`; document.body.style.backgroundSize = `${checkSize * 2}px ${checkSize * 2}px`; document.body.style.backgroundPosition = `0 0, ${checkSize}px ${checkSize}px`; break;
+                case 5: gradientString = `linear-gradient(to right, ${color1.hsl} 0%, ${color2.hsl} 25%, ${color3.hsl} 50%, ${color2.hsl} 75%, ${color1.hsl} 100%)`; document.body.style.backgroundSize = `200% 100%`; break;
+            }
+            if (typeSelector !== 4 && typeSelector !== 5) { document.body.style.backgroundSize = 'auto'; document.body.style.backgroundPosition = '0 0'; }
+            return { texture: gradientString, baseColor: color1.hsl, lightnessForText: primaryLightness };
+        }
+
+        function getDynamicTextColors(backgroundLightness) {
+            if (backgroundLightness > 55) { return { main: '#222222', shadow: 'rgba(255, 255, 255, 0.6)' }; }
+            else { return { main: '#f5f5f5', shadow: 'rgba(0, 0, 0, 0.7)' }; }
+        }
+
+        // --- Sound Functions ---
+        function playSoundForKey(keyCodeStr) {
+            if (!audioStarted) { // Check if Tone.start() has been called
+                Tone.start(); // Start audio context on first interaction
+                audioStarted = true;
+                console.log("Audio Context Started");
+            }
+
+            const hash = simpleHash(keyCodeStr + "_sound");
+            
+            // Define oscillator types
+            const oscillatorTypes = ["sine", "square", "triangle", "sawtooth"];
+            const selectedType = oscillatorTypes[hash % oscillatorTypes.length];
+
+            // Define a range of musical notes (e.g., C3 to C5)
+            // MIDI notes: C3=48, C4=60, C5=72. Range of 24 semitones.
+            const baseMidiNote = 48 + (hash % 25); // Notes from C3 to C5 (48 to 72)
+            const frequency = Tone.Frequency(baseMidiNote, "midi").toFrequency();
+
+            // Create a synth
+            const synth = new Tone.Synth({
+                oscillator: { type: selectedType },
+                envelope: {
+                    attack: 0.01,  // Quick attack
+                    decay: 0.1,
+                    sustain: 0.05,
+                    release: 0.2  // Slightly longer release for a bit of tail
+                },
+                volume: -12 // Reduce volume to avoid being too loud
+            }).toDestination();
+
+            // Play the note for a short duration
+            try {
+                synth.triggerAttackRelease(frequency, "8n"); // Play an eighth note
+                 // Dispose of the synth after a short delay to ensure it finishes playing
+                setTimeout(() => {
+                    synth.dispose();
+                }, 500); // 500ms should be enough for the note to finish
+            } catch (error) {
+                console.error("Error playing sound:", error);
+                 // Attempt to dispose even if there's an error during playback
+                try {
+                    synth.dispose();
+                } catch (disposeError) {
+                    console.error("Error disposing synth:", disposeError);
+                }
+            }
+        }
+        // --- End Sound Functions ---
+
+
+        // --- Confetti Functions ---
+        function createConfettiParticle() {
+            const particle = document.createElement('div');
+            particle.classList.add('confetti-particle');
+            const size = Math.random() * 10 + 6;
+            particle.style.width = `${size}px`; particle.style.height = `${size}px`;
+            if (Math.random() > 0.3) particle.style.borderRadius = '50%';
+            else { if (Math.random() > 0.5) particle.style.width = `${size * (Math.random() * 0.6 + 0.7)}px`; else particle.style.height = `${size * (Math.random() * 0.6 + 0.7)}px`;}
+            particle.style.backgroundColor = `hsl(${Math.random() * 360}, 90%, 65%)`;
+            particle.style.left = `${Math.random() * 100}vw`; particle.style.top = `${Math.random() * -15 - 5}vh`;
+            const initialRotation = Math.random() * 360;
+            particle.style.setProperty('--initial-rotation', `${initialRotation}deg`); particle.style.transform = `rotate(${initialRotation}deg)`;
+            const fallDuration = Math.random() * 2.5 + 3;
+            particle.style.animation = `fall ${fallDuration}s cubic-bezier(0.3, 0, 0.8, 1) forwards`;
+            particle.addEventListener('animationend', () => { if (particle.parentNode) particle.parentNode.removeChild(particle); });
+            document.body.appendChild(particle);
+        }
+        function launchConfetti() { 
+            for (let i = 0; i < confettiAmount; i++) { 
+                setTimeout(createConfettiParticle, Math.random() * 400); 
+            } 
+        }
+        // --- End Confetti Functions ---
+
+        document.addEventListener('keydown', function(event) {
+            if (document.activeElement === confettiSlider) {
+                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight" && event.key !== "ArrowUp" && event.key !== "ArrowDown") {
+                    return;
+                }
+            }
+
+            initialMessageSpan = keyPressContainer.querySelector('span.italic');
+            if (keyPressCount === 0 && initialMessageSpan && initialMessageSpan.parentNode) {
+                initialMessageSpan.parentNode.removeChild(initialMessageSpan);
+                initialMessageSpan = null;
+            }
+            keyPressCount++;
+
+            const keyName = event.key === ' ' ? 'Space' : event.key;
+            const keyCode = event.code;
+
+            // Play sound for the key
+            playSoundForKey(keyCode);
+
+            const textureData = getTextureForKey(keyCode);
+            document.body.style.backgroundColor = textureData.baseColor;
+            document.body.style.backgroundImage = textureData.texture;
+
+            const textStyleInfo = getDynamicTextColors(textureData.lightnessForText);
+            
+            [mainTitle, subTitle, footerText, confettiLabel, confettiValueDisplay].forEach(el => {
+                if (el) {
+                    el.style.color = textStyleInfo.main;
+                    el.style.textShadow = `0 0 5px ${textStyleInfo.shadow}, 0 0 3px ${textStyleInfo.shadow}`;
+                }
+            });
+            const currentPlaceholder = keyPressContainer.querySelector('span.italic.dynamic-text-color');
+            if (currentPlaceholder) {
+                 currentPlaceholder.style.color = textStyleInfo.main;
+                 currentPlaceholder.style.textShadow = `0 0 5px ${textStyleInfo.shadow}, 0 0 3px ${textStyleInfo.shadow}`;
+            }
+
+            const keyBoxColorData = getKeyBoxColor(keyCode);
+            const keyBoxTextInfo = getDynamicTextColors(keyBoxColorData.lightnessValue);
+
+            const keyBox = document.createElement('div');
+            keyBox.classList.add('key-box');
+            keyBox.textContent = keyName;
+            keyBox.style.backgroundColor = keyBoxColorData.hsl;
+            keyBox.style.color = keyBoxTextInfo.main;
+
+            keyPressContainer.prepend(keyBox);
+
+            const maxBoxes = 30;
+            while (keyPressContainer.children.length > maxBoxes) {
+                const oldestBox = keyPressContainer.lastChild;
+                if (oldestBox) {
+                    keyPressContainer.removeChild(oldestBox);
+                } else {
+                    break; 
+                }
+            }
+
+            setTimeout(() => {
+                keyBox.classList.add('fading-out');
+                setTimeout(() => {
+                    if (keyBox.parentNode === keyPressContainer) keyPressContainer.removeChild(keyBox);
+                    if (keyPressContainer.children.length === 0 && keyPressCount > 0) {
+                         const newPlaceholderMessage = document.createElement('span');
+                         newPlaceholderMessage.className = 'text-gray-400 italic dynamic-text-color'; 
+                         newPlaceholderMessage.textContent = 'Press another key...';
+                         newPlaceholderMessage.style.color = textStyleInfo.main; 
+                         newPlaceholderMessage.style.textShadow = `0 0 5px ${textStyleInfo.shadow}, 0 0 3px ${textStyleInfo.shadow}`;
+                         keyPressContainer.appendChild(newPlaceholderMessage);
+                         initialMessageSpan = newPlaceholderMessage; 
+                    }
+                }, 500); 
+            }, 3000);
+
+            if (confettiAmount > 0) {
+                launchConfetti();
+            }
+        });
+
+        const initialBodyLightness = 95; 
+        const initialTextColors = getDynamicTextColors(initialBodyLightness);
+        [mainTitle, subTitle, footerText, confettiLabel, confettiValueDisplay].forEach(el => {
+            if(el) {
+                el.style.color = initialTextColors.main;
+                el.style.textShadow = `0 0 5px ${initialTextColors.shadow}, 0 0 3px ${initialTextColors.shadow}`;
+            }
+        });
+        if(initialMessageSpan) {
+            initialMessageSpan.style.color = initialTextColors.main;
+            initialMessageSpan.style.textShadow = `0 0 5px ${initialTextColors.shadow}, 0 0 3px ${initialTextColors.shadow}`;
+        }
+
+        keyPressContainerWrapper.classList.add('border-2', 'border-dashed', 'border-indigo-300');
+    </script>
+</body>
+</html>
