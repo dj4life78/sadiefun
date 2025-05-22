@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard Player - Content</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Bungee&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: transparent; /* Or set a specific bg */
+            color: #e0e0e0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 95vh; /* Try to fill iframe height */
+            padding: 20px;
+            text-align: center;
+        }
+        .font-bungee {
+            font-family: 'Bungee', cursive;
+        }
+        /* Add any specific styles for the keyboard player here */
+        .key {
+            background-color: #fff;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 1rem 0.5rem;
+            margin: 0.2rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 30px;
+            text-align: center;
+        }
+        .key:hover {
+            background-color: #f0f0f0;
+        }
+        .keyboard-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <h2 class="font-bungee text-3xl md:text-4xl text-pink-400 mb-6">Make Some Music!</h2>
+    <p class="text-lg mb-8 text-red-300">Click the keys to play notes.</p>
+
+    <div class="keyboard-container max-w-md mx-auto mb-8">
+        <div class="key">C</div>
+        <div class="key">D</div>
+        <div class="key">E</div>
+        <div class="key">F</div>
+        <div class="key">G</div>
+        <div class="key">A</div>
+        <div class="key">B</div>
+        <div class="key">C</div>
+    </div>
+    
+    <div class="animate-pulse text-6xl mb-8">🎵</div>
+
+    <p class="mt-8 text-sm text-orange-400">Full interactive keyboard coming soon!</p>
+
+    <script>
+        // Add any JavaScript specific to the keyboard player page here
+        console.log("Keyboard Player iframe content loaded.");
+        const keys = document.querySelectorAll('.key');
+        keys.forEach(key => {
+            key.addEventListener('click', () => {
+                // Placeholder for playing a sound
+                console.log('Key pressed:', key.textContent);
+                // You would integrate Tone.js or Web Audio API here
+                alert('♪ Playing ' + key.textContent + ' ♪ (Sound not implemented yet)');
+            });
+        });
+    </script>
+</body>
+</html>
