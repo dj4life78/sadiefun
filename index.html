@@ -16,20 +16,29 @@
         }
         /* Style for the key boxes */
         .key-box {
-            padding: 1rem 1.5rem;
-            margin: 0.5rem;
+            padding: 0.75rem 1rem; /* Slightly reduced padding for mobile, scales up with font */
+            margin: 0.25rem; /* Reduced margin for mobile */
             border-radius: 0.5rem;
-            font-size: 1.25rem;
+            font-size: 1rem; /* Base font size for key name */
             font-weight: 600;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 80px;
-            min-height: 60px;
+            min-width: 60px; /* Adjusted min-width for mobile */
+            min-height: 50px; /* Adjusted min-height for mobile */
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             opacity: 1;
             transition: opacity 0.5s ease-out, transform 0.2s ease-out;
             transform: scale(1);
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            .key-box {
+                padding: 1rem 1.5rem;
+                margin: 0.5rem;
+                font-size: 1.25rem;
+                min-width: 80px;
+                min-height: 60px;
+            }
         }
         .key-box:hover {
             transform: scale(1.05);
@@ -53,7 +62,7 @@
         #keyPressContainerWrapper {
             max-height: 60vh; 
             overflow-y: auto;
-            padding: 1rem;
+            padding: 0.75rem; /* Adjusted padding for mobile */
             border-radius: 0.75rem;
             background-color: rgba(255, 255, 255, 0.9); 
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
@@ -61,14 +70,25 @@
             z-index: 10;
             transition: max-height 0.3s ease, margin-bottom 0.3s ease; /* Smooth transition for layout changes */
         }
+         @media (min-width: 640px) { /* sm breakpoint */
+            #keyPressContainerWrapper {
+                padding: 1rem;
+            }
+        }
         #keyPressContainer {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             align-items: center;
-            padding: 1rem;
-            min-height: 100px;
+            padding: 0.5rem; /* Adjusted padding for mobile */
+            min-height: 80px; /* Adjusted min-height for mobile */
             flex-direction: row-reverse;
+        }
+         @media (min-width: 640px) { /* sm breakpoint */
+            #keyPressContainer {
+                padding: 1rem;
+                min-height: 100px;
+            }
         }
         /* Custom scrollbar */
         #keyPressContainerWrapper::-webkit-scrollbar { width: 8px; }
@@ -90,12 +110,23 @@
 
         /* Slider Styles */
         #confettiControls {
-            margin-top: 1.5rem; padding: 0.75rem 1rem; background-color: rgba(255, 255, 255, 0.7);
+            margin-top: 1rem; /* Adjusted margin */
+            padding: 0.5rem 0.75rem; /* Adjusted padding */
+            background-color: rgba(255, 255, 255, 0.7);
             border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            width: 100%; max-width: 320px; text-align: center;
-            transition: margin-bottom 0.3s ease; /* Smooth transition for layout changes */
+            width: 90%; /* More responsive width */
+            max-width: 320px; text-align: center;
+            transition: margin-bottom 0.3s ease; 
         }
-        #confettiSlider { width: 70%; margin: 0 0.5rem; cursor: pointer; }
+         @media (min-width: 640px) { /* sm breakpoint */
+            #confettiControls {
+                 margin-top: 1.5rem; padding: 0.75rem 1rem;
+            }
+        }
+        #confettiSlider { width: 65%; margin: 0 0.5rem; cursor: pointer; } /* Adjusted width */
+         @media (min-width: 640px) { /* sm breakpoint */
+            #confettiSlider { width: 70%;}
+        }
         #confettiSlider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 20px; height: 20px; background: #4f46e5; border-radius: 50%; cursor: pointer; }
         #confettiSlider::-moz-range-thumb { width: 20px; height: 20px; background: #4f46e5; border-radius: 50%; cursor: pointer; border: none; }
 
@@ -107,45 +138,45 @@
             left: 0;
             width: 100%;
             background-color: #d1d5db; /* Tailwind gray-300 */
-            padding: 8px;
+            padding: 5px; /* Slightly reduced padding */
             box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
             z-index: 1000;
-            user-select: none; /* Prevent text selection on keys */
+            user-select: none; 
         }
         .keyboard-row {
             display: flex;
             justify-content: center;
-            margin-bottom: 5px;
+            margin-bottom: 3px; /* Reduced margin */
         }
         .keyboard-row:last-child {
             margin-bottom: 0;
         }
         .virtual-key {
-            background-color: #f9fafb; /* Tailwind gray-50 */
-            border: 1px solid #9ca3af; /* Tailwind gray-400 */
-            border-radius: 5px;
-            padding: 10px 0; /* Vertical padding */
-            margin: 2px;
-            font-size: 16px;
+            background-color: #f9fafb; 
+            border: 1px solid #9ca3af; 
+            border-radius: 4px; /* Slightly smaller radius */
+            padding: 8px 0; 
+            margin: 1.5px; /* Reduced margin */
+            font-size: 14px; /* Adjusted font size for mobile keys */
             font-weight: 500;
-            color: #1f2937; /* Tailwind gray-800 */
+            color: #1f2937; 
             cursor: pointer;
-            flex-grow: 1; /* Allow keys to take up space */
+            flex-grow: 1; 
             text-align: center;
-            min-width: 30px; /* Minimum width for smaller keys */
-            height: 45px;
+            min-width: 28px; 
+            height: 40px; /* Adjusted height */
             display: flex;
             align-items: center;
             justify-content: center;
-            -webkit-tap-highlight-color: transparent; /* Remove tap highlight on mobile */
+            -webkit-tap-highlight-color: transparent; 
         }
         .virtual-key:active {
-            background-color: #e5e7eb; /* Tailwind gray-200 */
+            background-color: #e5e7eb; 
         }
         .virtual-key.space-key {
-            flex-grow: 5; /* Spacebar takes more space */
+            flex-grow: 5; 
         }
-        .virtual-key.utility-key {
+        .virtual-key.utility-key { /* Not currently used in simplified layout but kept for future */
             flex-grow: 1.5;
         }
 
@@ -153,28 +184,22 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="text-gray-800">
-    <div class="text-center p-6 md:p-8">
-        <h1 id="mainTitle" class="text-3xl md:text-4xl font-bold mb-4 text-indigo-600 dynamic-text-color">Keyboard Color Fun!</h1>
-        <p id="subTitle" class="text-lg md:text-xl text-gray-600 mb-6 dynamic-text-color">Press any key on your keyboard to see it light up with a unique color.</p>
+    <div class="text-center p-4 sm:p-6 md:p-8"> <h1 id="mainTitle" class="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 sm:mb-4 text-indigo-600 dynamic-text-color">Keyboard Color Fun!</h1>
+        <p id="subTitle" class="text-base sm:text-lg md:text-xl text-gray-600 mb-4 sm:mb-6 dynamic-text-color">Press any key to see the magic!</p> </div>
+
+    <div id="keyPressContainerWrapper" class="w-11/12 sm:w-full max-w-3xl mb-4"> <div id="keyPressContainer">
+            <span class="text-gray-400 italic dynamic-text-color text-sm sm:text-base">Waiting for key press...</span> </div>
     </div>
 
-    <div id="keyPressContainerWrapper" class="w-full max-w-3xl mb-4">
-        <div id="keyPressContainer">
-            <span class="text-gray-400 italic dynamic-text-color">Waiting for key press...</span>
-        </div>
-    </div>
-
-    <div id="confettiControls">
-        <label for="confettiSlider" id="confettiLabel" class="dynamic-text-color font-medium">Confetti: </label>
+    <div id="confettiControls" class="mb-4"> <label for="confettiSlider" id="confettiLabel" class="dynamic-text-color font-medium text-sm sm:text-base">Confetti: </label>
         <input type="range" id="confettiSlider" min="0" max="200" value="30">
-        <span id="confettiValue" class="dynamic-text-color font-medium">30</span>
+        <span id="confettiValue" class="dynamic-text-color font-medium text-sm sm:text-base">30</span>
     </div>
     
     <div id="virtualKeyboardContainer">
         </div>
 
-    <footer class="text-center p-4 text-sm text-gray-500 mt-4">
-        <p id="footerText" class="dynamic-text-color">Tip: Try different keys like Shift, Ctrl, Alt, or Space!</p>
+    <footer class="text-center p-3 sm:p-4 text-xs sm:text-sm text-gray-500 mt-auto"> <p id="footerText" class="dynamic-text-color">Tip: Try different keys like Shift, Ctrl, Alt, or Space!</p>
     </footer>
 
     <script>
@@ -276,7 +301,7 @@
                     if (keyBox.parentNode === keyPressContainer) keyPressContainer.removeChild(keyBox);
                     if (keyPressContainer.children.length === 0 && keyPressCount > 0) {
                          const newPlaceholderMessage = document.createElement('span');
-                         newPlaceholderMessage.className = 'text-gray-400 italic dynamic-text-color'; 
+                         newPlaceholderMessage.className = 'text-gray-400 italic dynamic-text-color text-sm sm:text-base'; 
                          newPlaceholderMessage.textContent = 'Press another key...';
                          newPlaceholderMessage.style.color = textStyleInfo.main; 
                          newPlaceholderMessage.style.textShadow = `0 0 5px ${textStyleInfo.shadow}, 0 0 3px ${textStyleInfo.shadow}`;
@@ -296,29 +321,29 @@
                     return;
                 }
             }
-            // Pass relevant properties to the handler
             handleKeyPress({ key: event.key, code: event.code });
         });
 
         // --- Virtual Keyboard Logic ---
         const virtualKeyboardContainer = document.getElementById('virtualKeyboardContainer');
+        // Simplified QWERTY layout for mobile, focusing on letters and space.
         const keyLayout = [
-            // Row 1: Numbers and symbols (simplified for now)
-            // [{key:'`', code:'Backquote'},{key:'1',code:'Digit1'},{key:'2',code:'Digit2'},{key:'3',code:'Digit3'},{key:'4',code:'Digit4'},{key:'5',code:'Digit5'},{key:'6',code:'Digit6'},{key:'7',code:'Digit7'},{key:'8',code:'Digit8'},{key:'9',code:'Digit9'},{key:'0',code:'Digit0'},{key:'-',code:'Minus'},{key:'=',code:'Equal'},{key:'Backspace',code:'Backspace', class:'utility-key'}],
-            // Row 2: QWERTY
-            [{key:'Q',code:'KeyQ'},{key:'W',code:'KeyW'},{key:'E',code:'KeyE'},{key:'R',code:'KeyR'},{key:'T',code:'KeyT'},{key:'Y',code:'KeyY'},{key:'U',code:'KeyU'},{key:'I',code:'KeyI'},{key:'O',code:'KeyO'},{key:'P',code:'KeyP'}/*,{key:'[',code:'BracketLeft'},{key:']',code:'BracketRight'},{key:'\\',code:'Backslash', class:'utility-key'}*/],
-            // Row 3: ASDFGH
-            [{key:'A',code:'KeyA'},{key:'S',code:'KeyS'},{key:'D',code:'KeyD'},{key:'F',code:'KeyF'},{key:'G',code:'KeyG'},{key:'H',code:'KeyH'},{key:'J',code:'KeyJ'},{key:'K',code:'KeyK'},{key:'L',code:'KeyL'}/*,{key:';',code:'Semicolon'},{key:'\'',code:'Quote'},{key:'Enter',code:'Enter', class:'utility-key'}*/],
-            // Row 4: ZXCVBNM
-            [/*{key:'Shift',code:'ShiftLeft', class:'utility-key'},*/{key:'Z',code:'KeyZ'},{key:'X',code:'KeyX'},{key:'C',code:'KeyC'},{key:'V',code:'KeyV'},{key:'B',code:'KeyB'},{key:'N',code:'KeyN'},{key:'M',code:'KeyM'}/*,{key:',',code:'Comma'},{key:'.',code:'Period'},{key:'/',code:'Slash'},{key:'Shift',code:'ShiftRight', class:'utility-key'}*/],
-            // Row 5: Space
+            [{key:'Q',code:'KeyQ'},{key:'W',code:'KeyW'},{key:'E',code:'KeyE'},{key:'R',code:'KeyR'},{key:'T',code:'KeyT'},{key:'Y',code:'KeyY'},{key:'U',code:'KeyU'},{key:'I',code:'KeyI'},{key:'O',code:'KeyO'},{key:'P',code:'KeyP'}],
+            [{key:'A',code:'KeyA'},{key:'S',code:'KeyS'},{key:'D',code:'KeyD'},{key:'F',code:'KeyF'},{key:'G',code:'KeyG'},{key:'H',code:'KeyH'},{key:'J',code:'KeyJ'},{key:'K',code:'KeyK'},{key:'L',code:'KeyL'}],
+            [{key:'Z',code:'KeyZ'},{key:'X',code:'KeyX'},{key:'C',code:'KeyC'},{key:'V',code:'KeyV'},{key:'B',code:'KeyB'},{key:'N',code:'KeyN'},{key:'M',code:'KeyM'}],
             [{key:' ',code:'Space', class: 'space-key'}]
         ];
 
         function createVirtualKeyboard() {
-            keyLayout.forEach(rowKeys => {
+            virtualKeyboardContainer.innerHTML = ''; // Clear previous keyboard if any
+            let totalKeyboardHeight = 0;
+            const rowMarginBottom = 3; // Corresponds to .keyboard-row margin-bottom
+
+            keyLayout.forEach((rowKeys, rowIndex) => {
                 const rowDiv = document.createElement('div');
                 rowDiv.classList.add('keyboard-row');
+                let maxKeyHeightInRow = 0;
+
                 rowKeys.forEach(keyObj => {
                     const keyButton = document.createElement('button');
                     keyButton.classList.add('virtual-key');
@@ -329,34 +354,62 @@
                         keyButton.classList.add(keyObj.class);
                     }
                     keyButton.addEventListener('click', function() {
-                        // Simulate key press for the main handler
                         handleKeyPress({ key: this.dataset.key, code: this.dataset.code });
                     });
                     rowDiv.appendChild(keyButton);
+                    // Temporarily append to measure, then remove if not needed, or just use CSS defined height
+                    // For simplicity, we'll rely on the CSS height for calculation.
+                    // The .virtual-key height is 40px, margin is 1.5px * 2 = 3px. Total = 43px.
                 });
                 virtualKeyboardContainer.appendChild(rowDiv);
+                maxKeyHeightInRow = 40 + (1.5 * 2); // height + top/bottom margin from .virtual-key
+                totalKeyboardHeight += maxKeyHeightInRow;
+                if (rowIndex < keyLayout.length -1) {
+                    totalKeyboardHeight += rowMarginBottom;
+                }
             });
+            // Add container's own padding
+            totalKeyboardHeight += 5 * 2; // top/bottom padding of #virtualKeyboardContainer (5px * 2)
+            return totalKeyboardHeight;
         }
         
         function isMobile() {
-            // Simple check, can be made more robust
             return window.innerWidth <= 768;
         }
 
-        // Initial setup
-        if (isMobile()) {
-            virtualKeyboardContainer.style.display = 'block';
-            createVirtualKeyboard();
-            // Adjust layout for virtual keyboard
-            document.getElementById('keyPressContainerWrapper').style.maxHeight = 'calc(40vh - 60px)'; // Reduce further, account for slider
-            document.getElementById('confettiControls').style.marginBottom = '230px'; // Approx height of keyboard + some margin
-            document.body.style.paddingBottom = '220px'; // Add padding to body to prevent content from being hidden by fixed keyboard
-            // Hide initial message if keyboard is shown
-            if (initialMessageSpan && initialMessageSpan.parentNode) {
-                initialMessageSpan.parentNode.removeChild(initialMessageSpan);
-                initialMessageSpan = null;
+        // Initial setup and mobile adjustments
+        function initializeLayout() {
+            if (isMobile()) {
+                virtualKeyboardContainer.style.display = 'block';
+                const keyboardHeight = createVirtualKeyboard(); // Get calculated height
+
+                // Adjust layout for virtual keyboard
+                // These values are estimates of the virtual keyboard's height + some buffer.
+                // The keyboardHeight variable now provides a more dynamic value.
+                const controlsMarginBottom = keyboardHeight + 10; // 10px buffer
+                const bodyPaddingBottom = keyboardHeight + 5; // 5px buffer
+                
+                document.getElementById('keyPressContainerWrapper').style.maxHeight = `calc(100vh - ${keyboardHeight}px - 250px)`; // Adjust available space
+                document.getElementById('confettiControls').style.marginBottom = `${controlsMarginBottom}px`; 
+                document.body.style.paddingBottom = `${bodyPaddingBottom}px`; 
+
+                if (initialMessageSpan && initialMessageSpan.parentNode) {
+                    initialMessageSpan.parentNode.removeChild(initialMessageSpan);
+                    initialMessageSpan = null;
+                }
+            } else {
+                // Ensure desktop layout is clean if not mobile
+                virtualKeyboardContainer.style.display = 'none';
+                document.getElementById('keyPressContainerWrapper').style.maxHeight = '60vh';
+                document.getElementById('confettiControls').style.marginBottom = '1rem'; // Default margin
+                document.body.style.paddingBottom = '0';
             }
         }
+        
+        // Call initializeLayout on load and on resize for dynamic adjustments
+        window.addEventListener('load', initializeLayout);
+        window.addEventListener('resize', initializeLayout);
+
 
         const initialBodyLightness = 95; 
         const initialTextColors = getDynamicTextColors(initialBodyLightness);
