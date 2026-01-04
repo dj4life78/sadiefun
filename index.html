@@ -33,6 +33,7 @@
                             blue: '#3B82F6',
                             green: '#22c55e',
                             orange: '#F97316',
+                            red: '#EF4444',
                             bg: '#F3F4F6'
                         }
                     },
@@ -146,6 +147,28 @@
         }
         .d-pad-btn:active {
             background: rgba(255, 255, 255, 0.5);
+            transform: scale(0.95);
+        }
+        
+        /* Fire Button for Asteroid Blaster */
+        .fire-btn {
+            background: rgba(239, 68, 68, 0.4); /* brand-red */
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(4px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+            transition: all 0.1s;
+            user-select: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .fire-btn:active {
+            background: rgba(239, 68, 68, 0.7);
             transform: scale(0.95);
         }
 
@@ -362,6 +385,28 @@
                 icon: 'ph-arrows-out-cardinal',
                 init: (container) => {
                     return new SnakeGame(container);
+                }
+            },
+            {
+                id: 'asteroid-blaster',
+                title: 'Asteroid Blaster',
+                description: 'Float and blast! Use Arrow keys to move and Spacebar to shoot.',
+                color: 'bg-brand-purple',
+                textColor: 'text-purple-600',
+                icon: 'ph-crosshair',
+                init: (container) => {
+                    return new AsteroidBlasterGame(container);
+                }
+            },
+            {
+                id: 'sky-catcher',
+                title: 'Sky Catcher',
+                description: 'Catch falling balls in the basket! Avoid the bombs or lose points.',
+                color: 'bg-cyan-500',
+                textColor: 'text-cyan-600',
+                icon: 'ph-basketball',
+                init: (container) => {
+                    return new SkyCatcherGame(container);
                 }
             }
         ];
@@ -1085,6 +1130,493 @@
                     </div>
                 `;
                 document.getElementById('retry-snake').onclick = () => this.startGame();
+            }
+        }
+
+         /**
+         * Game 5: Asteroid Blaster
+         */
+         class AsteroidBlasterGame {
+            constructor(container) {
+                this.container = container;
+                this.player = { x: 50, y: 50, dir: 'up' }; // Percentages
+                this.bullets = [];
+                this.asteroids = [];
+                this.score = 0;
+                this.isPlaying = false;
+                this.keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, Space: false };
+                this.frameId = null;
+                this.spawnRate = 60;
+                this.spawnTimer = 0;
+                
+                // Binding
+                this.handleKey = this.handleKey.bind(this);
+                this.gameLoop = this.gameLoop.bind(this);
+                
+                this.renderStartScreen();
+                return this;
+            }
+
+            cleanup() {
+                this.isPlaying = false;
+                cancelAnimationFrame(this.frameId);
+                window.removeEventListener('keydown', this.handleKey);
+                window.removeEventListener('keyup', this.handleKey);
+            }
+
+            renderStartScreen() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🛸</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Asteroid Blaster</h2>
+                        <p class="text-gray-500 mb-8 max-w-sm mx-auto">Use Arrows to move & Space to shoot! Blast the rocks before they hit you.</p>
+                        <button id="start-blaster" class="bg-brand-purple text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Blast Off!</button>
+                    </div>
+                `;
+                document.getElementById('start-blaster').onclick = () => this.startGame();
+            }
+
+            startGame() {
+                this.isPlaying = true;
+                this.score = 0;
+                this.player = { x: 50, y: 50, dir: 'up' };
+                this.bullets = [];
+                this.asteroids = [];
+                this.spawnRate = 60;
+                
+                this.container.innerHTML = `
+                    <div class="absolute inset-0 bg-slate-900 overflow-hidden select-none" id="ab-area">
+                        <!-- Stars/Space BG -->
+                        <div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 30px 30px;"></div>
+                        
+                        <!-- Score -->
+                        <div class="absolute top-4 left-4 text-white font-bold text-xl z-20 shadow-md">
+                            Score: <span id="ab-score">0</span>
+                        </div>
+
+                        <!-- Game Elements -->
+                        <div id="ab-game-layer" class="absolute inset-0 z-10"></div>
+
+                        <!-- Mobile Controls -->
+                        <div class="absolute bottom-6 left-6 z-30 grid grid-cols-3 gap-2 w-32 h-32 opacity-70">
+                             <div></div>
+                             <div class="d-pad-btn" id="ab-up"><i class="ph ph-caret-up"></i></div>
+                             <div></div>
+                             <div class="d-pad-btn" id="ab-left"><i class="ph ph-caret-left"></i></div>
+                             <div class="d-pad-btn" id="ab-down"><i class="ph ph-caret-down"></i></div>
+                             <div class="d-pad-btn" id="ab-right"><i class="ph ph-caret-right"></i></div>
+                        </div>
+                        <div class="absolute bottom-6 right-6 z-30 opacity-70">
+                            <div class="fire-btn w-20 h-20 bg-red-500 rounded-full border-4 border-white/50 flex items-center justify-center text-white font-bold shadow-lg active:scale-95" id="ab-fire">
+                                FIRE
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                window.addEventListener('keydown', this.handleKey);
+                window.addEventListener('keyup', this.handleKey);
+
+                // Touch Controls Setup
+                const setupTouch = (id, key) => {
+                    const el = document.getElementById(id);
+                    if(!el) return;
+                    const press = (e) => { e.preventDefault(); this.keys[key] = true; };
+                    const release = (e) => { e.preventDefault(); this.keys[key] = false; };
+                    el.addEventListener('touchstart', press);
+                    el.addEventListener('touchend', release);
+                    el.addEventListener('mousedown', press);
+                    el.addEventListener('mouseup', release);
+                    el.addEventListener('mouseleave', release);
+                };
+
+                setupTouch('ab-up', 'ArrowUp');
+                setupTouch('ab-down', 'ArrowDown');
+                setupTouch('ab-left', 'ArrowLeft');
+                setupTouch('ab-right', 'ArrowRight');
+                setupTouch('ab-fire', 'Space');
+
+                this.gameLoop();
+            }
+
+            handleKey(e) {
+                if(this.keys.hasOwnProperty(e.code) || e.code === 'Space') {
+                    this.keys[e.code] = (e.type === 'keydown');
+                }
+            }
+
+            gameLoop() {
+                if (!this.isPlaying) return;
+
+                // 1. Move Player
+                let speed = 0.8;
+                if (this.keys.ArrowUp) { this.player.y -= speed; this.player.dir = 'up'; }
+                if (this.keys.ArrowDown) { this.player.y += speed; this.player.dir = 'down'; }
+                if (this.keys.ArrowLeft) { this.player.x -= speed; this.player.dir = 'left'; }
+                if (this.keys.ArrowRight) { this.player.x += speed; this.player.dir = 'right'; }
+
+                // Clamp to screen (5% padding)
+                this.player.x = Math.max(5, Math.min(95, this.player.x));
+                this.player.y = Math.max(5, Math.min(95, this.player.y));
+
+                // 2. Shooting
+                if (this.keys.Space && !this.keys.SpaceLock) {
+                    this.fireBullet();
+                    this.keys.SpaceLock = true; // Semi-auto fire
+                }
+                if (!this.keys.Space) this.keys.SpaceLock = false;
+
+                // 3. Move Bullets
+                for (let i = this.bullets.length - 1; i >= 0; i--) {
+                    let b = this.bullets[i];
+                    b.x += b.vx;
+                    b.y += b.vy;
+                    // Remove if off screen
+                    if(b.x < 0 || b.x > 100 || b.y < 0 || b.y > 100) {
+                        this.bullets.splice(i, 1);
+                    }
+                }
+
+                // 4. Spawn Asteroids
+                this.spawnTimer++;
+                if (this.spawnTimer > this.spawnRate) {
+                    this.spawnAsteroid();
+                    this.spawnTimer = 0;
+                    if(this.spawnRate > 20) this.spawnRate -= 0.5; // Difficulty ramp
+                }
+
+                // 5. Move Asteroids & Collisions
+                for (let i = this.asteroids.length - 1; i >= 0; i--) {
+                    let a = this.asteroids[i];
+                    a.x += a.vx;
+                    a.y += a.vy;
+
+                    // Bullet Collision
+                    for (let j = this.bullets.length - 1; j >= 0; j--) {
+                        let b = this.bullets[j];
+                        let dx = a.x - b.x;
+                        let dy = a.y - b.y;
+                        let dist = Math.sqrt(dx*dx + dy*dy);
+                        if(dist < 5) { // Hit!
+                            this.bullets.splice(j, 1);
+                            this.asteroids.splice(i, 1);
+                            this.score += 10;
+                            app.addPoints(10);
+                            document.getElementById('ab-score').innerText = this.score;
+                            // Reset loop index since we removed asteroid
+                            i--; 
+                            break; 
+                        }
+                    }
+
+                    if(i < 0) continue; // Asteroid destroyed
+
+                    // Player Collision
+                    let pdx = a.x - this.player.x;
+                    let pdy = a.y - this.player.y;
+                    let pdist = Math.sqrt(pdx*pdx + pdy*pdy);
+                    if (pdist < 5) {
+                        this.gameOver();
+                        return;
+                    }
+
+                    // Remove if far off screen
+                    if(a.x < -20 || a.x > 120 || a.y < -20 || a.y > 120) {
+                         this.asteroids.splice(i, 1);
+                    }
+                }
+
+                this.renderFrame();
+                this.frameId = requestAnimationFrame(this.gameLoop);
+            }
+
+            fireBullet() {
+                let vx = 0, vy = 0;
+                let speed = 2;
+                if(this.player.dir === 'up') vy = -speed;
+                else if(this.player.dir === 'down') vy = speed;
+                else if(this.player.dir === 'left') vx = -speed;
+                else if(this.player.dir === 'right') vx = speed;
+
+                this.bullets.push({ x: this.player.x, y: this.player.y, vx, vy });
+            }
+
+            spawnAsteroid() {
+                // Random edge spawn
+                let edge = Math.floor(Math.random() * 4); // 0:top, 1:right, 2:bottom, 3:left
+                let x, y, vx, vy;
+                let speed = Math.random() * 0.3 + 0.2;
+
+                if (edge === 0) { x = Math.random() * 100; y = -10; vy = speed; vx = (Math.random() - 0.5) * 0.5; }
+                else if (edge === 1) { x = 110; y = Math.random() * 100; vx = -speed; vy = (Math.random() - 0.5) * 0.5; }
+                else if (edge === 2) { x = Math.random() * 100; y = 110; vy = -speed; vx = (Math.random() - 0.5) * 0.5; }
+                else { x = -10; y = Math.random() * 100; vx = speed; vy = (Math.random() - 0.5) * 0.5; }
+
+                this.asteroids.push({ x, y, vx, vy });
+            }
+
+            renderFrame() {
+                const layer = document.getElementById('ab-game-layer');
+                if(!layer) return;
+                
+                let html = '';
+                
+                // Draw Player
+                let rot = 0;
+                if(this.player.dir === 'right') rot = 90;
+                if(this.player.dir === 'down') rot = 180;
+                if(this.player.dir === 'left') rot = 270;
+                
+                html += `<div style="left:${this.player.x}%; top:${this.player.y}%; transform: translate(-50%, -50%) rotate(${rot}deg);" class="absolute text-3xl transition-transform duration-75">🚀</div>`;
+
+                // Draw Bullets
+                this.bullets.forEach(b => {
+                    html += `<div style="left:${b.x}%; top:${b.y}%; transform: translate(-50%, -50%);" class="absolute w-2 h-2 bg-yellow-400 rounded-full shadow-lg shadow-yellow-400"></div>`;
+                });
+
+                // Draw Asteroids
+                this.asteroids.forEach(a => {
+                    html += `<div style="left:${a.x}%; top:${a.y}%; transform: translate(-50%, -50%);" class="absolute text-3xl">🪨</div>`;
+                });
+
+                layer.innerHTML = html;
+            }
+
+            gameOver() {
+                this.cleanup();
+                const container = this.container;
+                container.innerHTML = `
+                    <div class="absolute inset-0 bg-slate-900 flex items-center justify-center flex-col z-50 animate-pop">
+                        <div class="text-6xl mb-4">💥</div>
+                        <h2 class="text-4xl font-bold text-white mb-2">SHIP DESTROYED!</h2>
+                        <p class="text-xl text-gray-300 mb-6">Score: ${this.score}</p>
+                        <button id="retry-blaster" class="bg-brand-purple text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Play Again</button>
+                    </div>
+                `;
+                document.getElementById('retry-blaster').onclick = () => this.startGame();
+            }
+         }
+
+        /**
+         * Game 6: Sky Catcher
+         */
+        class SkyCatcherGame {
+            constructor(container) {
+                this.container = container;
+                this.isPlaying = false;
+                this.score = 0;
+                this.timeLeft = 60;
+                this.basketX = 50; // Percentage 0-100
+                this.items = []; // Falling objects
+                this.frameId = null;
+                this.spawnTimer = 0;
+                this.keys = { ArrowLeft: false, ArrowRight: false };
+                
+                this.handleKey = this.handleKey.bind(this);
+                this.handleTouch = this.handleTouch.bind(this);
+                
+                this.renderStartScreen();
+                return this;
+            }
+
+            cleanup() {
+                this.isPlaying = false;
+                cancelAnimationFrame(this.frameId);
+                window.removeEventListener('keydown', this.handleKey);
+                window.removeEventListener('keyup', this.handleKey);
+            }
+
+            renderStartScreen() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🧺</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Sky Catcher</h2>
+                        <p class="text-gray-500 mb-8 max-w-sm mx-auto">Catch the balls! ⚽️🏀🏐<br>Avoid the bombs! 💣 (-5 pts)</p>
+                        <button id="start-catcher" class="bg-cyan-500 text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Start Catching</button>
+                    </div>
+                `;
+                document.getElementById('start-catcher').onclick = () => this.startGame();
+            }
+
+            startGame() {
+                this.isPlaying = true;
+                this.score = 0;
+                this.timeLeft = 60;
+                this.items = [];
+                this.basketX = 50;
+                
+                // Fixed: Removed 'relative' class which was causing the game container to collapse
+                this.container.innerHTML = `
+                    <div class="absolute inset-0 bg-sky-200 overflow-hidden select-none">
+                        <!-- Cloud BG -->
+                        <div class="absolute top-10 left-10 text-6xl opacity-50 animate-pulse">☁️</div>
+                        <div class="absolute top-20 right-20 text-6xl opacity-40 animate-pulse" style="animation-delay: 1s;">☁️</div>
+                        
+                        <!-- HUD -->
+                        <div class="absolute top-4 left-4 right-4 flex justify-between font-bold text-xl text-sky-900 z-20">
+                            <span class="bg-white/50 px-3 py-1 rounded-full">Score: <span id="sc-score">0</span></span>
+                            <span class="bg-white/50 px-3 py-1 rounded-full">Time: <span id="sc-time">60</span>s</span>
+                        </div>
+
+                        <!-- Game Area -->
+                        <div id="sc-game-area" class="absolute inset-0 z-10"></div>
+
+                        <!-- Basket -->
+                        <div id="sc-basket" class="absolute bottom-4 text-5xl transition-transform duration-75 flex justify-center" style="width: 10%; left: 50%; transform: translateX(-50%);">
+                            🧺
+                        </div>
+
+                        <!-- Touch Controls -->
+                        <div class="absolute inset-0 z-30 grid grid-cols-2">
+                            <div id="sc-left-touch" class="active:bg-white/10"></div>
+                            <div id="sc-right-touch" class="active:bg-white/10"></div>
+                        </div>
+                    </div>
+                `;
+
+                window.addEventListener('keydown', this.handleKey);
+                window.addEventListener('keyup', this.handleKey);
+                
+                // Touch
+                const leftZone = document.getElementById('sc-left-touch');
+                const rightZone = document.getElementById('sc-right-touch');
+                
+                const touchStart = (key) => (e) => { e.preventDefault(); this.keys[key] = true; };
+                const touchEnd = (key) => (e) => { e.preventDefault(); this.keys[key] = false; };
+
+                leftZone.addEventListener('touchstart', touchStart('ArrowLeft'));
+                leftZone.addEventListener('touchend', touchEnd('ArrowLeft'));
+                leftZone.addEventListener('mousedown', touchStart('ArrowLeft'));
+                leftZone.addEventListener('mouseup', touchEnd('ArrowLeft'));
+
+                rightZone.addEventListener('touchstart', touchStart('ArrowRight'));
+                rightZone.addEventListener('touchend', touchEnd('ArrowRight'));
+                rightZone.addEventListener('mousedown', touchStart('ArrowRight'));
+                rightZone.addEventListener('mouseup', touchEnd('ArrowRight'));
+
+                // Timer Loop
+                this.timerInterval = setInterval(() => {
+                    if(!this.isPlaying) return;
+                    this.timeLeft--;
+                    const timeEl = document.getElementById('sc-time');
+                    if(timeEl) timeEl.innerText = this.timeLeft;
+                    if(this.timeLeft <= 0) this.gameOver();
+                }, 1000);
+
+                this.gameLoop();
+            }
+
+            handleKey(e) {
+                if (e.code === 'ArrowLeft') this.keys.ArrowLeft = (e.type === 'keydown');
+                if (e.code === 'ArrowRight') this.keys.ArrowRight = (e.type === 'keydown');
+            }
+
+            handleTouch(e) {
+                // Handled via individual listeners
+            }
+
+            spawnItem() {
+                const types = ['⚽', '🏀', '🏐', '🎾', '🥎', '💣', '💣']; // 2/7 chance for bomb
+                const type = types[Math.floor(Math.random() * types.length)];
+                const isBomb = type === '💣';
+                
+                this.items.push({
+                    x: Math.random() * 90 + 5, // 5% to 95%
+                    y: -10,
+                    type: type,
+                    isBomb: isBomb,
+                    speed: Math.random() * 0.5 + 0.5 + (isBomb ? 0.2 : 0), // Bombs slightly faster
+                    id: Math.random().toString(36).substr(2, 9)
+                });
+            }
+
+            gameLoop() {
+                if (!this.isPlaying) return;
+
+                // 1. Move Basket
+                if (this.keys.ArrowLeft) this.basketX -= 1.5;
+                if (this.keys.ArrowRight) this.basketX += 1.5;
+                this.basketX = Math.max(5, Math.min(95, this.basketX));
+                
+                const basketEl = document.getElementById('sc-basket');
+                if(basketEl) basketEl.style.left = `${this.basketX}%`;
+
+                // 2. Spawn Items
+                this.spawnTimer++;
+                if (this.spawnTimer > 40) { // Every ~0.7s
+                    this.spawnItem();
+                    this.spawnTimer = 0;
+                }
+
+                // 3. Update Items
+                const gameArea = document.getElementById('sc-game-area');
+                if (gameArea) {
+                    // We'll rebuild DOM for items to keep it synced without complex diffing
+                    let html = '';
+                    
+                    for (let i = this.items.length - 1; i >= 0; i--) {
+                        let item = this.items[i];
+                        item.y += item.speed;
+
+                        // Render
+                        html += `<div class="absolute text-4xl" style="left: ${item.x}%; top: ${item.y}%; transform: translateX(-50%);">${item.type}</div>`;
+
+                        // Collision Check
+                        // Basket is at bottom 4 (approx 90% top?)
+                        // Simple vertical check: if item > 85% and < 95%
+                        // Simple horizontal check: item.x within basketX +/- 6
+                        if (item.y > 85 && item.y < 95) {
+                            if (Math.abs(item.x - this.basketX) < 8) {
+                                // Caught!
+                                if (item.isBomb) {
+                                    this.score -= 5;
+                                    this.showFeedback(item.x, item.y, "-5", "text-red-600");
+                                } else {
+                                    this.score += 1;
+                                    app.addPoints(1);
+                                    this.showFeedback(item.x, item.y, "+1", "text-green-600");
+                                }
+                                document.getElementById('sc-score').innerText = this.score;
+                                this.items.splice(i, 1);
+                                continue;
+                            }
+                        }
+
+                        // Remove if off screen
+                        if (item.y > 100) {
+                            this.items.splice(i, 1);
+                        }
+                    }
+                    gameArea.innerHTML = html;
+                }
+
+                this.frameId = requestAnimationFrame(() => this.gameLoop());
+            }
+
+            showFeedback(x, y, text, colorClass) {
+                const fb = document.createElement('div');
+                fb.className = `absolute font-bold text-2xl ${colorClass} animate-bounce`;
+                fb.style.left = `${x}%`;
+                fb.style.top = `${y}%`;
+                fb.style.zIndex = 50;
+                fb.innerText = text;
+                this.container.appendChild(fb);
+                setTimeout(() => fb.remove(), 500);
+            }
+
+            gameOver() {
+                this.cleanup();
+                clearInterval(this.timerInterval);
+                
+                this.container.innerHTML = `
+                    <div class="absolute inset-0 bg-sky-100 flex items-center justify-center flex-col z-50 animate-pop">
+                        <div class="text-6xl mb-4">🏁</div>
+                        <h2 class="text-4xl font-bold text-cyan-600 mb-2">Time's Up!</h2>
+                        <p class="text-2xl text-gray-700 mb-6">Final Score: ${this.score}</p>
+                        <button id="retry-catcher" class="bg-cyan-500 text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Play Again</button>
+                    </div>
+                `;
+                document.getElementById('retry-catcher').onclick = () => this.startGame();
             }
         }
 
