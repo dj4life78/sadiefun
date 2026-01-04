@@ -3,199 +3,1092 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fun Stuff!</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+    <title>Fun Stuff - Games for Kids</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Google Fonts: Fredoka for that round, friendly kid-vibe -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons for fun vector icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Fredoka', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            purple: '#8B5CF6',
+                            yellow: '#FBBF24',
+                            teal: '#2DD4BF',
+                            pink: '#F472B6',
+                            blue: '#3B82F6',
+                            green: '#22c55e',
+                            orange: '#F97316',
+                            bg: '#F3F4F6'
+                        }
+                    },
+                    animation: {
+                        'bounce-slow': 'bounce 3s infinite',
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    },
+                    keyframes: {
+                        pop: {
+                            '0%': { transform: 'scale(0)' },
+                            '100%': { transform: 'scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
+        /* Base transition for background color changes */
         body {
-            font-family: 'Inter', sans-serif;
+            transition: background 0.5s ease;
         }
-        .font-bungee {
-            font-family: 'Bungee', cursive;
+        
+        /* Custom scrollbar for game areas */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        /* Hide elements by default */
-        .hidden-section {
-            display: none;
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
-        /* Styling for active navigation button */
-        .nav-active {
-            background-color: #fbbf24; /* yellow-400 */
-            color: #1e293b; /* slate-800 */
+        ::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
         }
-        /* Styling for the iframe container and iframe itself */
-        .iframe-container {
-            width: 100%;
-            max-width: 1800px; /* Max width for the iframe content */
-            height: 70vh; /* Viewport height, adjust as needed */
-            min-height: 500px; /* Minimum height */
-            background-color: rgba(40, 43, 54, 0.7); /* Slightly transparent dark background */
-            border-radius: 0.75rem; /* Corresponds to rounded-xl */
-            overflow: hidden; /* Ensures iframe corners are also rounded if iframe bg is transparent */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
         }
-        .content-iframe {
-            width: 100%;
-            height: 100%;
-            border: none; /* Remove default iframe border */
+
+        .game-card:hover {
+            transform: translateY(-8px);
+        }
+
+        /* --- THEMES --- */
+        
+        /* 1. Default Grid */
+        .theme-grid {
+            background-color: #F3F4F6;
+            background-image: radial-gradient(#E5E7EB 2px, transparent 2px);
+            background-size: 32px 32px;
+        }
+
+        /* 2. Deep Space */
+        .theme-space {
+            background-color: #1e1b4b; /* indigo-950 */
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px);
+            background-size: 550px 550px, 350px 350px;
+            background-position: 0 0, 40px 60px;
+            animation: spaceScroll 60s linear infinite;
+        }
+        @keyframes spaceScroll {
+            from { background-position: 0 0, 40px 60px; }
+            to { background-position: 550px 550px, 590px 610px; }
+        }
+
+        /* 3. Candy Stripes */
+        .theme-candy {
+            background-color: #fdf2f8; /* pink-50 */
+            background-image: linear-gradient(45deg, #fbcfe8 25%, transparent 25%, transparent 50%, #fbcfe8 50%, #fbcfe8 75%, transparent 75%, transparent);
+            background-size: 40px 40px;
+            animation: candyScroll 20s linear infinite;
+        }
+        @keyframes candyScroll {
+            from { background-position: 0 0; }
+            to { background-position: 40px 40px; }
+        }
+
+        /* Game Specific Styles */
+        .bubble {
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .bubble:active {
+            transform: scale(0.9);
+        }
+
+        .scrolling-bg {
+            animation: scrollBackground 20s linear infinite;
+        }
+        @keyframes scrollBackground {
+            from { background-position: 0 0; }
+            to { background-position: -1000px 0; }
+        }
+        
+        /* D-Pad for Snake */
+        .d-pad-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(4px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            transition: all 0.1s;
+            user-select: none;
+            cursor: pointer;
+        }
+        .d-pad-btn:active {
+            background: rgba(255, 255, 255, 0.5);
+            transform: scale(0.95);
+        }
+
+        /* New Animation for Bubble Pop */
+        @keyframes popBurst {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .animate-pop-burst {
+            animation: popBurst 0.2s ease-out forwards !important;
+            pointer-events: none; /* Prevent double clicks */
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 to-purple-900 text-white min-h-screen flex flex-col items-center p-4 selection:bg-yellow-400 selection:text-slate-900">
+<body class="theme-grid font-sans text-gray-800 antialiased min-h-screen flex flex-col transition-colors duration-500">
 
-    <nav id="top-navigation" class="fixed top-0 left-0 right-0 bg-slate-800/80 backdrop-blur-md shadow-lg p-3 z-50 hidden">
-        <div class="container mx-auto flex justify-center space-x-2 sm:space-x-4">
-            <button id="nav-home" onclick="showSection('home')" class="font-bungee text-xs sm:text-sm py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-500 hover:text-slate-900 transition-colors duration-200">🏠 Home</button>
-            <button id="nav-solar" onclick="showSection('solar')" class="font-bungee text-xs sm:text-sm py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-500 hover:text-slate-900 transition-colors duration-200">🪐 Solar System</button>
-            <button id="nav-keyboard" onclick="showSection('keyboard')" class="font-bungee text-xs sm:text-sm py-2 px-3 sm:px-4 rounded-lg hover:bg-yellow-500 hover:text-slate-900 transition-colors duration-200">🎹 Keyboard</button>
+    <!-- Navbar -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b-4 border-brand-purple/20">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="app.showMenu()">
+                    <div class="w-10 h-10 bg-brand-purple rounded-xl flex items-center justify-center text-white shadow-lg rotate-3">
+                        <i class="ph ph-game-controller text-2xl"></i>
+                    </div>
+                    <span class="text-3xl font-bold tracking-tight text-brand-purple">Fun Stuff</span>
+                </div>
+
+                <!-- Right Side Actions -->
+                <div class="flex items-center gap-3">
+                    <!-- Customize Button -->
+                    <button onclick="app.toggleSettings()" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-600 w-10 h-10 rounded-full flex items-center justify-center transition-colors" title="Customize Theme">
+                        <i class="ph ph-paint-roller text-xl"></i>
+                    </button>
+
+                    <!-- Score Badge -->
+                    <button class="bg-brand-yellow/20 hover:bg-brand-yellow/30 text-yellow-700 px-4 py-2 rounded-full font-semibold transition-colors flex items-center gap-2">
+                        <i class="ph ph-star-fill"></i> <span id="global-score">0 Points</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </nav>
 
-    <div id="content-area" class="container mx-auto text-center p-4 md:p-8 mt-16 sm:mt-20 w-full">
-        <section id="home-section">
-            <header class="mb-12 md:mb-16">
-                <h1 class="font-bungee text-4xl sm:text-5xl md:text-7xl text-yellow-300">
-                    🚀 Fun Stuff! ✨
-                </h1>
-                <p class="mt-4 text-lg md:text-xl text-purple-300">Your portal to peculiar pastimes!</p>
-            </header>
-
-            <main class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 max-w-4xl mx-auto">
-                <div onclick="showSection('solar')" 
-                   class="cursor-pointer group bg-white/10 p-6 sm:p-8 rounded-xl shadow-2xl hover:shadow-purple-500/50 transform transition-all duration-300 ease-in-out hover:scale-105 ring-2 ring-transparent hover:ring-yellow-400 focus:outline-none focus:ring-4 focus:ring-yellow-500 focus:ring-opacity-75">
-                    <div class="text-center">
-                        <div class="text-6xl mb-4 transition-transform duration-300 group-hover:rotate-[360deg] group-hover:scale-125">🪐</div>
-                        <h2 class="font-bungee text-2xl sm:text-3xl mb-3 text-yellow-300 group-hover:text-yellow-200">Solar System Fun</h2>
-                        <p class="text-purple-200 group-hover:text-purple-100 text-sm sm:text-base">
-                            Zoom through the cosmos, learn quirky facts, and explore our celestial neighborhood!
-                        </p>
-                        <span class="mt-4 inline-block bg-yellow-400 text-slate-900 font-semibold py-2 px-4 rounded-lg group-hover:bg-yellow-300 transition-colors duration-300 text-sm sm:text-base">
-                            Explore Planets!
-                        </span>
-                    </div>
+    <!-- Main Content Area -->
+    <main id="app-container" class="flex-grow max-w-6xl mx-auto w-full p-4 sm:p-6 lg:p-8 flex flex-col relative z-0">
+        
+        <!-- View: Game Menu -->
+        <div id="menu-view" class="w-full transition-all duration-300">
+            
+            <!-- Hero Section -->
+            <div class="bg-gradient-to-r from-brand-purple to-indigo-600 rounded-3xl p-8 sm:p-12 mb-10 text-white shadow-xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 opacity-10 transform translate-x-12 -translate-y-12">
+                    <i class="ph ph-rocket text-9xl"></i>
                 </div>
-
-                <div onclick="showSection('keyboard')"
-                   class="cursor-pointer group bg-white/10 p-6 sm:p-8 rounded-xl shadow-2xl hover:shadow-pink-500/50 transform transition-all duration-300 ease-in-out hover:scale-105 ring-2 ring-transparent hover:ring-pink-400 focus:outline-none focus:ring-4 focus:ring-pink-500 focus:ring-opacity-75">
-                    <div class="text-center">
-                        <div class="text-6xl mb-4 transition-transform duration-300 group-hover:animate-pulse">🎹</div>
-                        <h2 class="font-bungee text-2xl sm:text-3xl mb-3 text-pink-400 group-hover:text-pink-300">Keyboard Player</h2>
-                        <p class="text-purple-200 group-hover:text-purple-100 text-sm sm:text-base">
-                            Jam out with digital keys, create your own tunes, and become a virtual maestro!
-                        </p>
-                        <span class="mt-4 inline-block bg-pink-500 text-white font-semibold py-2 px-4 rounded-lg group-hover:bg-pink-400 transition-colors duration-300 text-sm sm:text-base">
-                            Play Some Tunes!
-                        </span>
-                    </div>
-                </div>
-            </main>
-        </section>
-
-        <section id="solar-section" class="hidden-section">
-            <div class="bg-white/10 backdrop-blur-md p-3 sm:p-6 rounded-xl shadow-xl flex flex-col justify-center items-center">
-                <h1 class="font-bungee text-3xl sm:text-4xl text-yellow-300 mb-4">🪐 Solar System Fun 🪐</h1>
-                <div class="iframe-container">
-                    <iframe id="solar-iframe" class="content-iframe" src="" title="Solar System Fun Content"></iframe>
+                <div class="relative z-10">
+                    <h1 class="text-4xl sm:text-5xl font-bold mb-4">Ready to Play?</h1>
+                    <p class="text-xl text-purple-100 max-w-xl mb-8">Choose a game below to start your adventure! Earn points and have fun.</p>
+                    <button onclick="document.getElementById('games-grid').scrollIntoView({behavior: 'smooth'})" class="bg-white text-brand-purple px-8 py-3 rounded-2xl font-bold shadow-lg hover:shadow-xl hover:scale-105 transition-all">
+                        Let's Go!
+                    </button>
                 </div>
             </div>
-        </section>
 
-        <section id="keyboard-section" class="hidden-section">
-             <div class="bg-white/10 backdrop-blur-md p-3 sm:p-6 rounded-xl shadow-xl flex flex-col justify-center items-center">
-                <h1 class="font-bungee text-3xl sm:text-4xl text-yellow-300 mb-4">🎹 Keyboard Player 🎹</h1>
-                <div class="iframe-container">
-                    <iframe id="keyboard-iframe" class="content-iframe" src="" title="Keyboard Player Content"></iframe>
-                </div>
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2 bg-white/50 w-fit px-4 py-1 rounded-xl backdrop-blur-sm">
+                <i class="ph ph-squares-four text-brand-teal"></i> All Games
+            </h2>
+
+            <!-- Game Grid (Populated by JS) -->
+            <div id="games-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Cards will be injected here -->
             </div>
-        </section>
+        </div>
 
-        <footer class="mt-16 md:mt-24">
-            <p class="text-sm text-purple-400 font-bungee">&copy; <span id="year"></span> Sadie's Wacky World. Stay Wacky!</p>
-        </footer>
+        <!-- View: Active Game -->
+        <div id="game-view" class="hidden flex-grow flex flex-col w-full h-full bg-white rounded-3xl shadow-xl overflow-hidden border-4 border-gray-100 relative">
+            
+            <!-- Game Header -->
+            <div class="bg-gray-50 border-b border-gray-100 p-4 flex justify-between items-center">
+                <button onclick="app.showMenu()" class="flex items-center gap-2 text-gray-500 hover:text-brand-purple font-bold transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 hover:border-brand-purple">
+                    <i class="ph ph-arrow-left text-lg"></i> Back to Menu
+                </button>
+                <h3 id="current-game-title" class="text-xl font-bold text-gray-800">Game Title</h3>
+                <div class="w-24"></div> <!-- Spacer for centering -->
+            </div>
+
+            <!-- Game Canvas/Container -->
+            <div id="game-stage" class="flex-grow relative bg-gray-50 overflow-hidden flex items-center justify-center">
+                <!-- Game logic renders here -->
+            </div>
+            
+        </div>
+
+    </main>
+
+    <!-- SETTINGS MODAL -->
+    <div id="settings-modal" class="fixed inset-0 z-[100] hidden">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="app.toggleSettings()"></div>
+        
+        <!-- Modal Content -->
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-3xl shadow-2xl p-6 border-4 border-indigo-100 animate-pop">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <i class="ph ph-paint-roller text-brand-purple"></i> Customize
+                </h2>
+                <button onclick="app.toggleSettings()" class="text-gray-400 hover:text-gray-600 bg-gray-100 hover:bg-gray-200 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                    <i class="ph ph-x text-lg"></i>
+                </button>
+            </div>
+            
+            <p class="text-gray-500 mb-4 font-medium">Choose your background theme:</p>
+            
+            <div class="grid grid-cols-1 gap-3">
+                <!-- Theme Option 1: Grid -->
+                <button onclick="app.setTheme('theme-grid')" class="flex items-center gap-4 p-3 rounded-2xl border-2 border-gray-100 hover:border-brand-purple hover:bg-purple-50 transition-all group text-left">
+                    <div class="w-12 h-12 rounded-xl bg-gray-100 border border-gray-300 shadow-sm overflow-hidden relative">
+                         <div class="absolute inset-0 opacity-50" style="background-image: radial-gradient(#9ca3af 1px, transparent 1px); background-size: 8px 8px;"></div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 group-hover:text-brand-purple">Graph Paper</h4>
+                        <p class="text-xs text-gray-400">Clean & Classic</p>
+                    </div>
+                </button>
+
+                <!-- Theme Option 2: Space -->
+                <button onclick="app.setTheme('theme-space')" class="flex items-center gap-4 p-3 rounded-2xl border-2 border-gray-100 hover:border-indigo-500 hover:bg-indigo-50 transition-all group text-left">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-950 border border-indigo-800 shadow-sm relative overflow-hidden">
+                        <div class="absolute w-1 h-1 bg-white rounded-full top-2 left-2 opacity-80"></div>
+                        <div class="absolute w-1 h-1 bg-white rounded-full top-6 right-3 opacity-50"></div>
+                        <div class="absolute w-1 h-1 bg-white rounded-full bottom-3 left-5 opacity-70"></div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 group-hover:text-indigo-600">Deep Space</h4>
+                        <p class="text-xs text-gray-400">Moving Stars</p>
+                    </div>
+                </button>
+
+                <!-- Theme Option 3: Candy -->
+                <button onclick="app.setTheme('theme-candy')" class="flex items-center gap-4 p-3 rounded-2xl border-2 border-gray-100 hover:border-pink-400 hover:bg-pink-50 transition-all group text-left">
+                    <div class="w-12 h-12 rounded-xl bg-pink-100 border border-pink-200 shadow-sm relative overflow-hidden flex">
+                        <div class="w-1/3 h-full bg-pink-200/50 transform -skew-x-12"></div>
+                        <div class="w-1/3 h-full bg-transparent transform -skew-x-12"></div>
+                        <div class="w-1/3 h-full bg-pink-200/50 transform -skew-x-12"></div>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-800 group-hover:text-pink-500">Candy Stripes</h4>
+                        <p class="text-xs text-gray-400">Sweet & Playful</p>
+                    </div>
+                </button>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+                <button onclick="app.toggleSettings()" class="text-brand-purple font-bold text-sm hover:underline">Close Settings</button>
+            </div>
+        </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto relative z-10">
+        <div class="max-w-6xl mx-auto px-6 py-8 flex justify-between items-center">
+            <p class="text-gray-400 font-medium">© 2024 Fun Stuff. Made for fun!</p>
+            <div class="flex gap-4 text-2xl text-gray-300">
+                <i class="ph ph-smiley hover:text-brand-teal transition-colors cursor-pointer"></i>
+                <i class="ph ph-heart hover:text-brand-pink transition-colors cursor-pointer"></i>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Application Logic -->
     <script>
-        // DOM Elements
-        const topNavigation = document.getElementById('top-navigation');
-        const homeSection = document.getElementById('home-section');
-        const solarSection = document.getElementById('solar-section');
-        const keyboardSection = document.getElementById('keyboard-section');
+        // --- 1. GAME REGISTRY (The "Plugin" System) ---
         
-        const navHomeButton = document.getElementById('nav-home');
-        const navSolarButton = document.getElementById('nav-solar');
-        const navKeyboardButton = document.getElementById('nav-keyboard');
-
-        const solarIframe = document.getElementById('solar-iframe');
-        const keyboardIframe = document.getElementById('keyboard-iframe');
-
-        const sections = {
-            'home': homeSection,
-            'solar': solarSection,
-            'keyboard': keyboardSection
-        };
-
-        const navButtons = {
-            'home': navHomeButton,
-            'solar': navSolarButton,
-            'keyboard': navKeyboardButton
-        };
-
-        // URLs for iframe content
-        const iframeSources = {
-            'solar': './solar_system_fun.html', // Make sure this file exists in the same directory
-            'keyboard': './keyboard_player.html' // Make sure this file exists in the same directory
-        };
-
-        // Set current year in footer
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Function to show the selected section and hide others
-        function showSection(sectionId) {
-            // Hide all sections
-            Object.values(sections).forEach(section => {
-                if (section) section.style.display = 'none';
-            });
-
-            // Show the selected section
-            if (sections[sectionId]) {
-                sections[sectionId].style.display = 'block'; // Use 'block' or 'flex' depending on layout needs
-
-                // Special handling for sections with iframes to set src
-                if (sectionId === 'solar' && solarIframe.src !== iframeSources.solar) {
-                    solarIframe.src = iframeSources.solar;
-                } else if (sectionId === 'keyboard' && keyboardIframe.src !== iframeSources.keyboard) {
-                    keyboardIframe.src = iframeSources.keyboard;
+        const GAMES = [
+            {
+                id: 'emoji-match',
+                title: 'Emoji Match',
+                description: 'Flip the cards to find matching pairs! Test your memory.',
+                color: 'bg-brand-teal',
+                textColor: 'text-teal-600',
+                icon: 'ph-cards',
+                init: (container) => {
+                    return new EmojiMatchGame(container);
+                }
+            },
+            {
+                id: 'bubble-pop',
+                title: 'Bubble Pop',
+                description: 'Pop as many bubbles as you can before time runs out!',
+                color: 'bg-brand-pink',
+                textColor: 'text-pink-600',
+                icon: 'ph-balloon',
+                init: (container) => {
+                    return new BubblePopGame(container);
+                }
+            },
+            {
+                id: 'cosmic-cruiser',
+                title: 'Cosmic Cruiser',
+                description: 'Fly your rocket! Dodge asteroids using Up and Down keys.',
+                color: 'bg-brand-blue',
+                textColor: 'text-blue-600',
+                icon: 'ph-rocket-launch',
+                init: (container) => {
+                    return new CosmicCruiserGame(container);
+                }
+            },
+            {
+                id: 'super-snake',
+                title: 'Super Snake',
+                description: 'Grow your snake by eating apples! Don\'t hit your tail.',
+                color: 'bg-brand-orange',
+                textColor: 'text-orange-600',
+                icon: 'ph-arrows-out-cardinal',
+                init: (container) => {
+                    return new SnakeGame(container);
                 }
             }
+        ];
+
+        // --- 2. MAIN APP CONTROLLER ---
+
+        const app = {
+            state: {
+                totalPoints: 0,
+                activeGame: null,
+                theme: 'theme-grid'
+            },
             
-            // Ensure the parent container of the iframe uses flex to center its content
-            if (sectionId === 'solar' || sectionId === 'keyboard') {
-                 sections[sectionId].style.display = 'flex';
-                 sections[sectionId].classList.add('flex-col', 'items-center', 'justify-center');
+            elements: {
+                menuView: document.getElementById('menu-view'),
+                gameView: document.getElementById('game-view'),
+                gameStage: document.getElementById('game-stage'),
+                gameTitle: document.getElementById('current-game-title'),
+                gamesGrid: document.getElementById('games-grid'),
+                scoreDisplay: document.getElementById('global-score'),
+                settingsModal: document.getElementById('settings-modal')
+            },
+
+            init() {
+                this.renderMenu();
+            },
+
+            renderMenu() {
+                this.elements.gamesGrid.innerHTML = GAMES.map(game => `
+                    <div onclick="app.launchGame('${game.id}')" class="game-card bg-white rounded-3xl p-6 shadow-lg border-b-4 border-transparent hover:border-gray-200 cursor-pointer transition-all duration-300 group h-full flex flex-col">
+                        <div class="${game.color} w-16 h-16 rounded-2xl flex items-center justify-center text-white text-3xl mb-4 shadow-md group-hover:scale-110 transition-transform">
+                            <i class="ph ${game.icon}"></i>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">${game.title}</h3>
+                        <p class="text-gray-500 font-medium leading-relaxed flex-grow">${game.description}</p>
+                        <div class="mt-6 flex items-center text-sm font-bold ${game.textColor} uppercase tracking-wide">
+                            Play Now <i class="ph ph-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                    </div>
+                `).join('');
+            },
+
+            launchGame(gameId) {
+                const game = GAMES.find(g => g.id === gameId);
+                if (!game) return;
+
+                if (this.state.activeGame && this.state.activeGame.cleanup) {
+                    this.state.activeGame.cleanup();
+                }
+
+                this.elements.menuView.classList.add('hidden');
+                this.elements.gameView.classList.remove('hidden');
+                this.elements.gameTitle.innerText = game.title;
+                this.elements.gameStage.innerHTML = ''; 
+                
+                if (game.init) {
+                    this.state.activeGame = game.init(this.elements.gameStage);
+                }
+            },
+
+            showMenu() {
+                if (this.state.activeGame && this.state.activeGame.cleanup) {
+                    this.state.activeGame.cleanup();
+                    this.state.activeGame = null;
+                }
+
+                this.elements.gameView.classList.add('hidden');
+                this.elements.menuView.classList.remove('hidden');
+                this.elements.gameStage.innerHTML = '';
+                window.scrollTo(0,0);
+            },
+
+            addPoints(amount) {
+                this.state.totalPoints += amount;
+                this.elements.scoreDisplay.innerText = `${this.state.totalPoints} Points`;
+                this.elements.scoreDisplay.parentElement.classList.add('scale-110', 'bg-brand-yellow/50');
+                setTimeout(() => {
+                    this.elements.scoreDisplay.parentElement.classList.remove('scale-110', 'bg-brand-yellow/50');
+                }, 200);
+            },
+
+            // --- SETTINGS LOGIC ---
+            toggleSettings() {
+                this.elements.settingsModal.classList.toggle('hidden');
+            },
+
+            setTheme(themeName) {
+                document.body.classList.remove('theme-grid', 'theme-space', 'theme-candy');
+                document.body.classList.add(themeName);
+                this.state.theme = themeName;
+            }
+        };
+
+        // --- 3. GAME IMPLEMENTATIONS ---
+
+        /**
+         * Game 1: Emoji Match
+         */
+        class EmojiMatchGame {
+            constructor(container) {
+                this.container = container;
+                this.emojis = ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'];
+                this.cards = [...this.emojis, ...this.emojis]; // Pairs
+                this.flippedCards = [];
+                this.matchedPairs = 0;
+                this.isLocked = false;
+                this.render();
+                return this;
             }
 
+            cleanup() {} 
 
-            // Show top navigation
-            topNavigation.style.display = 'flex'; 
-            
-            // Update active state for navigation buttons
-            Object.values(navButtons).forEach(button => {
-                if (button) button.classList.remove('nav-active');
-            });
-            if (navButtons[sectionId]) {
-                navButtons[sectionId].classList.add('nav-active');
+            shuffle(array) {
+                return array.sort(() => Math.random() - 0.5);
             }
 
-            // Scroll to top of content area for better UX on section change
-            // For iframe sections, it might be better to scroll the section itself into view
-            if (sections[sectionId]) {
-                 sections[sectionId].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            render() {
+                this.cards = this.shuffle(this.cards);
+                
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-4 gap-4 max-w-lg mx-auto p-4';
+                
+                this.cards.forEach((emoji, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'w-16 h-16 sm:w-20 sm:h-20 bg-brand-teal rounded-xl cursor-pointer shadow-md flex items-center justify-center text-3xl transition-transform duration-300 transform hover:scale-105 active:scale-95';
+                    card.dataset.index = index;
+                    card.dataset.emoji = emoji;
+                    card.innerHTML = `<i class="ph ph-question text-white/50 text-2xl"></i>`;
+                    card.addEventListener('click', () => this.flipCard(card));
+                    grid.appendChild(card);
+                });
+
+                const wrapper = document.createElement('div');
+                wrapper.className = "flex flex-col items-center";
+                wrapper.innerHTML = `<p class="mb-4 font-bold text-gray-500">Find all the matching pairs!</p>`;
+                wrapper.appendChild(grid);
+                
+                const restartBtn = document.createElement('button');
+                restartBtn.className = "mt-6 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-full font-bold text-gray-600 transition-colors hidden";
+                restartBtn.innerText = "Play Again";
+                restartBtn.id = "emoji-restart";
+                restartBtn.onclick = () => {
+                    this.container.innerHTML = '';
+                    new EmojiMatchGame(this.container);
+                };
+                wrapper.appendChild(restartBtn);
+
+                this.container.appendChild(wrapper);
+            }
+
+            flipCard(card) {
+                if (this.isLocked || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+
+                card.classList.add('flipped', 'bg-white', 'border-2', 'border-brand-teal');
+                card.classList.remove('bg-brand-teal');
+                card.innerHTML = card.dataset.emoji;
+
+                this.flippedCards.push(card);
+
+                if (this.flippedCards.length === 2) {
+                    this.checkMatch();
+                }
+            }
+
+            checkMatch() {
+                this.isLocked = true;
+                const [card1, card2] = this.flippedCards;
+
+                if (card1.dataset.emoji === card2.dataset.emoji) {
+                    card1.classList.add('matched', 'opacity-50');
+                    card2.classList.add('matched', 'opacity-50');
+                    this.matchedPairs++;
+                    this.flippedCards = [];
+                    this.isLocked = false;
+                    app.addPoints(10);
+
+                    if (this.matchedPairs === this.emojis.length) {
+                        this.gameWin();
+                    }
+                } else {
+                    setTimeout(() => {
+                        [card1, card2].forEach(card => {
+                            card.classList.remove('flipped', 'bg-white', 'border-2', 'border-brand-teal');
+                            card.classList.add('bg-brand-teal');
+                            card.innerHTML = `<i class="ph ph-question text-white/50 text-2xl"></i>`;
+                        });
+                        this.flippedCards = [];
+                        this.isLocked = false;
+                    }, 1000);
+                }
+            }
+
+            gameWin() {
+                const restartBtn = document.getElementById('emoji-restart');
+                if(restartBtn) restartBtn.classList.remove('hidden');
+                
+                const winMsg = document.createElement('div');
+                winMsg.className = "absolute inset-0 flex items-center justify-center pointer-events-none";
+                winMsg.innerHTML = `<h1 class="text-6xl font-bold text-brand-purple animate-bounce-slow bg-white/90 p-8 rounded-3xl shadow-xl backdrop-blur-sm border-4 border-brand-purple">You Win! 🎉</h1>`;
+                this.container.appendChild(winMsg);
             }
         }
 
-        // Initial setup: Show home section and set active nav button
-        showSection('home'); 
+        /**
+         * Game 2: Bubble Pop
+         */
+        class BubblePopGame {
+            constructor(container) {
+                this.container = container;
+                this.score = 0;
+                this.timer = 15;
+                this.gameInterval = null;
+                this.spawnInterval = null;
+                this.isPlaying = false;
+                this.renderStartScreen();
+                return this;
+            }
+
+            cleanup() {
+                clearInterval(this.gameInterval);
+                clearInterval(this.spawnInterval);
+            }
+
+            renderStartScreen() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🎈</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Bubble Pop!</h2>
+                        <p class="text-gray-500 mb-8">Pop bubbles before time runs out.</p>
+                        <button id="start-bubble" class="bg-brand-pink text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Start Game</button>
+                    </div>
+                `;
+                document.getElementById('start-bubble').onclick = () => this.startGame();
+            }
+
+            startGame() {
+                this.isPlaying = true;
+                this.score = 0;
+                this.timer = 15;
+                this.container.innerHTML = `
+                    <div class="absolute top-4 left-4 right-4 flex justify-between font-bold text-xl text-gray-700 pointer-events-none z-10">
+                        <span>Score: <span id="bp-score">0</span></span>
+                        <span>Time: <span id="bp-time">15</span>s</span>
+                    </div>
+                    <div id="bubble-area" class="w-full h-full relative cursor-crosshair"></div>
+                `;
+                
+                this.gameInterval = setInterval(() => this.gameLoop(), 1000);
+                this.spawnInterval = setInterval(() => this.spawnBubble(), 600);
+            }
+
+            gameLoop() {
+                this.timer--;
+                const timeEl = document.getElementById('bp-time');
+                if (timeEl) timeEl.innerText = this.timer;
+
+                if (this.timer <= 0) {
+                    this.endGame();
+                }
+            }
+
+            spawnBubble() {
+                if (!this.isPlaying) return;
+                
+                const area = document.getElementById('bubble-area');
+                if (!area) return;
+
+                const bubble = document.createElement('div');
+                const size = Math.random() * 40 + 40; 
+                const x = Math.random() * (area.clientWidth - size);
+                const y = Math.random() * (area.clientHeight - size);
+                const colors = ['bg-red-400', 'bg-blue-400', 'bg-green-400', 'bg-yellow-400', 'bg-purple-400'];
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                bubble.className = `bubble absolute rounded-full ${color} shadow-inner opacity-90 animate-pop border-2 border-white/30 flex items-center justify-center select-none`;
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${x}px`;
+                bubble.style.top = `${y}px`;
+                
+                bubble.innerHTML = `<div class="w-1/3 h-1/3 bg-white/40 rounded-full absolute top-2 right-3"></div>`;
+
+                bubble.onmousedown = () => {
+                    this.score += 10;
+                    app.addPoints(10);
+                    document.getElementById('bp-score').innerText = this.score;
+
+                    // Trigger the CSS animation
+                    bubble.classList.add('animate-pop-burst');
+                    
+                    // Remove the bubble element after the animation finishes
+                    setTimeout(() => bubble.remove(), 200);
+                    
+                    // Sound effect placeholder visual
+                    const pop = document.createElement('div');
+                    pop.innerText = "POP!";
+                    pop.className = "absolute font-bold text-gray-600 pointer-events-none animate-bounce";
+                    pop.style.left = bubble.style.left;
+                    pop.style.top = bubble.style.top;
+                    area.appendChild(pop);
+                    setTimeout(() => pop.remove(), 500);
+                };
+
+                area.appendChild(bubble);
+
+                setTimeout(() => {
+                    if (bubble.parentElement) {
+                        bubble.style.transform = "scale(0)";
+                        setTimeout(() => bubble.remove(), 200);
+                    }
+                }, 2000);
+            }
+
+            endGame() {
+                this.cleanup();
+                this.isPlaying = false;
+                
+                this.container.innerHTML = `
+                    <div class="text-center animate-pop">
+                        <h2 class="text-4xl font-bold text-brand-pink mb-4">Time's Up!</h2>
+                        <p class="text-2xl text-gray-700 mb-6">Final Score: ${this.score}</p>
+                        <button id="retry-bubble" class="bg-brand-teal text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Play Again</button>
+                    </div>
+                `;
+                document.getElementById('retry-bubble').onclick = () => this.startGame();
+            }
+        }
+
+        /**
+         * Game 3: Cosmic Cruiser
+         */
+        class CosmicCruiserGame {
+            constructor(container) {
+                this.container = container;
+                this.isPlaying = false;
+                this.score = 0;
+                this.playerY = 50; 
+                this.velocity = 0;
+                this.obstacles = [];
+                this.gameSpeed = 5;
+                this.frameId = null;
+                this.spawnTimer = 0;
+                this.handleKey = this.handleKey.bind(this);
+                this.handleTouch = this.handleTouch.bind(this);
+                this.keys = { ArrowUp: false, ArrowDown: false };
+                this.renderStartScreen();
+                return this;
+            }
+
+            cleanup() {
+                this.isPlaying = false;
+                cancelAnimationFrame(this.frameId);
+                window.removeEventListener('keydown', this.handleKey);
+                window.removeEventListener('keyup', this.handleKey);
+            }
+
+            renderStartScreen() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🚀</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Cosmic Cruiser</h2>
+                        <p class="text-gray-500 mb-8 max-w-sm mx-auto">Use ⬆️ Up and ⬇️ Down keys (or tap top/bottom of screen) to dodge asteroids!</p>
+                        <button id="start-cosmic" class="bg-brand-blue text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Launch!</button>
+                    </div>
+                `;
+                document.getElementById('start-cosmic').onclick = () => this.startGame();
+            }
+
+            startGame() {
+                this.isPlaying = true;
+                this.score = 0;
+                this.playerY = 50;
+                this.velocity = 0;
+                this.obstacles = [];
+                this.gameSpeed = 4;
+                
+                this.container.innerHTML = `
+                    <div class="absolute inset-0 bg-slate-900 overflow-hidden scrolling-bg" style="background-image: radial-gradient(white 1px, transparent 1px); background-size: 50px 50px;">
+                        <div class="absolute top-4 right-4 bg-white/10 backdrop-blur rounded-full px-4 py-1 text-white font-bold z-20">
+                            Score: <span id="cc-score">0</span>
+                        </div>
+                        <div id="cc-player" class="absolute left-10 w-12 h-12 text-4xl transition-transform duration-75 z-20 flex items-center justify-center">
+                            🚀
+                        </div>
+                        <div id="touch-controls" class="absolute inset-0 z-30 grid grid-rows-2">
+                            <div class="cursor-pointer active:bg-white/5" data-dir="up"></div>
+                            <div class="cursor-pointer active:bg-white/5" data-dir="down"></div>
+                        </div>
+                        <div id="cc-obstacles" class="absolute inset-0 z-10"></div>
+                    </div>
+                `;
+
+                window.addEventListener('keydown', this.handleKey);
+                window.addEventListener('keyup', this.handleKey);
+                
+                const touchArea = document.getElementById('touch-controls');
+                touchArea.addEventListener('mousedown', this.handleTouch);
+                touchArea.addEventListener('mouseup', () => { this.keys.ArrowUp = false; this.keys.ArrowDown = false; });
+                touchArea.addEventListener('touchstart', this.handleTouch, {passive: false});
+                touchArea.addEventListener('touchend', (e) => { 
+                    e.preventDefault(); 
+                    this.keys.ArrowUp = false; 
+                    this.keys.ArrowDown = false; 
+                });
+
+                this.lastTime = performance.now();
+                this.gameLoop();
+            }
+
+            handleKey(e) {
+                if (e.type === 'keydown') {
+                    if (e.code === 'ArrowUp') this.keys.ArrowUp = true;
+                    if (e.code === 'ArrowDown') this.keys.ArrowDown = true;
+                } else {
+                    if (e.code === 'ArrowUp') this.keys.ArrowUp = false;
+                    if (e.code === 'ArrowDown') this.keys.ArrowDown = false;
+                }
+            }
+
+            handleTouch(e) {
+                if(e.type === 'touchstart') e.preventDefault();
+                const rect = this.container.getBoundingClientRect();
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+                const height = rect.height;
+
+                if (y < height / 2) {
+                    this.keys.ArrowUp = true;
+                    this.keys.ArrowDown = false;
+                } else {
+                    this.keys.ArrowUp = false;
+                    this.keys.ArrowDown = true;
+                }
+            }
+
+            spawnObstacle() {
+                const types = ['🪨', '☄️', '🛸', '🌑'];
+                const type = types[Math.floor(Math.random() * types.length)];
+                
+                const obs = document.createElement('div');
+                obs.innerText = type;
+                obs.className = "absolute text-3xl flex items-center justify-center";
+                obs.style.width = "40px";
+                obs.style.height = "40px";
+                const yPos = Math.random() * 80 + 10;
+                obs.style.top = `${yPos}%`;
+                obs.style.left = "100%"; 
+                document.getElementById('cc-obstacles').appendChild(obs);
+                
+                this.obstacles.push({
+                    el: obs,
+                    x: 100, 
+                    y: yPos,
+                    speed: Math.random() * 0.5 + 0.5
+                });
+            }
+
+            gameLoop() {
+                if (!this.isPlaying) return;
+
+                if (this.keys.ArrowUp) this.playerY -= 1.5;
+                if (this.keys.ArrowDown) this.playerY += 1.5;
+                this.playerY = Math.max(5, Math.min(90, this.playerY));
+                
+                const playerEl = document.getElementById('cc-player');
+                // Guard clause to prevent crash if element is missing during cleanup
+                if (!playerEl) return;
+
+                playerEl.style.top = `${this.playerY}%`;
+
+                this.spawnTimer++;
+                if (this.spawnTimer > 60) {
+                    this.spawnObstacle();
+                    this.spawnTimer = 0;
+                }
+
+                const playerRect = playerEl.getBoundingClientRect();
+                this.gameSpeed += 0.001;
+
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    let obs = this.obstacles[i];
+                    obs.x -= (obs.speed + (this.gameSpeed / 10)); 
+                    obs.el.style.left = `${obs.x}%`;
+
+                    const obsRect = obs.el.getBoundingClientRect();
+                    const padding = 8;
+                    if (
+                        playerRect.left + padding < obsRect.right - padding &&
+                        playerRect.right - padding > obsRect.left + padding &&
+                        playerRect.top + padding < obsRect.bottom - padding &&
+                        playerRect.bottom - padding > obsRect.top + padding
+                    ) {
+                        this.gameOver();
+                        return;
+                    }
+
+                    if (obs.x < -10) {
+                        obs.el.remove();
+                        this.obstacles.splice(i, 1);
+                        this.score += 5;
+                        app.addPoints(5);
+                        document.getElementById('cc-score').innerText = this.score;
+                    }
+                }
+
+                this.frameId = requestAnimationFrame(() => this.gameLoop());
+            }
+
+            gameOver() {
+                this.cleanup();
+                this.container.innerHTML = `
+                    <div class="absolute inset-0 bg-slate-900 flex items-center justify-center flex-col z-50">
+                        <div class="text-6xl mb-4">💥</div>
+                        <h2 class="text-4xl font-bold text-white mb-2">CRASH!</h2>
+                        <p class="text-xl text-gray-300 mb-6">Score: ${this.score}</p>
+                        <button id="retry-cosmic" class="bg-brand-blue text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Fly Again</button>
+                    </div>
+                `;
+                document.getElementById('retry-cosmic').onclick = () => this.startGame();
+            }
+        }
+
+        /**
+         * Game 4: Super Snake
+         */
+        class SnakeGame {
+            constructor(container) {
+                this.container = container;
+                this.gridSize = 20; // 20x20 grid
+                this.snake = [];
+                this.food = {};
+                this.direction = 'right';
+                this.nextDirection = 'right'; // Buffer for input
+                this.score = 0;
+                this.gameInterval = null;
+                this.isPaused = false;
+                
+                this.handleKey = this.handleKey.bind(this);
+                this.renderStartScreen();
+                return this;
+            }
+
+            cleanup() {
+                clearInterval(this.gameInterval);
+                window.removeEventListener('keydown', this.handleKey);
+            }
+
+            renderStartScreen() {
+                this.container.innerHTML = `
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🐍</div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-2">Super Snake</h2>
+                        <p class="text-gray-500 mb-8">Eat apples to grow! Don't hit the walls.</p>
+                        <button id="start-snake" class="bg-brand-orange text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Start Game</button>
+                    </div>
+                `;
+                document.getElementById('start-snake').onclick = () => this.startGame();
+            }
+
+            startGame() {
+                this.snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
+                this.score = 0;
+                this.direction = 'right';
+                this.nextDirection = 'right';
+                this.placeFood();
+                
+                this.renderGame();
+                window.addEventListener('keydown', this.handleKey);
+                
+                // Game Loop - 150ms per tick
+                this.gameInterval = setInterval(() => this.update(), 150);
+            }
+
+            placeFood() {
+                let valid = false;
+                while (!valid) {
+                    this.food = {
+                        x: Math.floor(Math.random() * this.gridSize),
+                        y: Math.floor(Math.random() * this.gridSize)
+                    };
+                    // Ensure food doesn't spawn on snake
+                    valid = !this.snake.some(segment => segment.x === this.food.x && segment.y === this.food.y);
+                }
+            }
+
+            handleKey(e) {
+                // Prevent scrolling with arrows
+                if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].indexOf(e.code) > -1) {
+                    e.preventDefault();
+                }
+
+                if (e.code === 'ArrowUp' && this.direction !== 'down') this.nextDirection = 'up';
+                else if (e.code === 'ArrowDown' && this.direction !== 'up') this.nextDirection = 'down';
+                else if (e.code === 'ArrowLeft' && this.direction !== 'right') this.nextDirection = 'left';
+                else if (e.code === 'ArrowRight' && this.direction !== 'left') this.nextDirection = 'right';
+            }
+            
+            setDir(dir) {
+                if (dir === 'up' && this.direction !== 'down') this.nextDirection = 'up';
+                else if (dir === 'down' && this.direction !== 'up') this.nextDirection = 'down';
+                else if (dir === 'left' && this.direction !== 'right') this.nextDirection = 'left';
+                else if (dir === 'right' && this.direction !== 'left') this.nextDirection = 'right';
+            }
+
+            update() {
+                this.direction = this.nextDirection;
+                const head = { ...this.snake[0] };
+
+                if (this.direction === 'up') head.y--;
+                if (this.direction === 'down') head.y++;
+                if (this.direction === 'left') head.x--;
+                if (this.direction === 'right') head.x++;
+
+                // Collision with Walls
+                if (head.x < 0 || head.x >= this.gridSize || head.y < 0 || head.y >= this.gridSize) {
+                    this.gameOver();
+                    return;
+                }
+
+                // Collision with Self
+                if (this.snake.some(segment => segment.x === head.x && segment.y === head.y)) {
+                    this.gameOver();
+                    return;
+                }
+
+                this.snake.unshift(head);
+
+                // Check Food
+                if (head.x === this.food.x && head.y === this.food.y) {
+                    this.score += 10;
+                    app.addPoints(10);
+                    document.getElementById('snake-score').innerText = this.score;
+                    this.placeFood();
+                } else {
+                    this.snake.pop(); // Remove tail if no food eaten
+                }
+
+                this.draw();
+            }
+
+            renderGame() {
+                this.container.innerHTML = `
+                    <div class="absolute inset-0 bg-green-50 flex flex-col items-center justify-center select-none overflow-hidden">
+                        <div class="absolute top-4 right-4 bg-white/50 backdrop-blur rounded-full px-4 py-1 text-gray-600 font-bold z-20">
+                            Score: <span id="snake-score">0</span>
+                        </div>
+                        
+                        <!-- Grid Container -->
+                        <div id="snake-grid" class="relative bg-white shadow-xl border-4 border-brand-orange rounded-lg" 
+                             style="width: 300px; height: 300px; display: grid; grid-template-columns: repeat(20, 1fr); grid-template-rows: repeat(20, 1fr);">
+                            <!-- Cells injected here -->
+                        </div>
+
+                        <!-- Mobile Controls -->
+                        <div class="mt-6 grid grid-cols-3 gap-2">
+                             <div></div>
+                             <div class="d-pad-btn bg-orange-200 border-orange-300 text-orange-600 w-12 h-12" id="btn-up"><i class="ph ph-arrow-up"></i></div>
+                             <div></div>
+                             <div class="d-pad-btn bg-orange-200 border-orange-300 text-orange-600 w-12 h-12" id="btn-left"><i class="ph ph-arrow-left"></i></div>
+                             <div class="d-pad-btn bg-orange-200 border-orange-300 text-orange-600 w-12 h-12" id="btn-down"><i class="ph ph-arrow-down"></i></div>
+                             <div class="d-pad-btn bg-orange-200 border-orange-300 text-orange-600 w-12 h-12" id="btn-right"><i class="ph ph-arrow-right"></i></div>
+                        </div>
+                    </div>
+                `;
+
+                // Add Touch Listeners
+                const addTouch = (id, dir) => {
+                    const el = document.getElementById(id);
+                    if(el) {
+                        el.addEventListener('mousedown', (e) => { e.preventDefault(); this.setDir(dir); });
+                        el.addEventListener('touchstart', (e) => { e.preventDefault(); this.setDir(dir); });
+                    }
+                };
+                addTouch('btn-up', 'up');
+                addTouch('btn-down', 'down');
+                addTouch('btn-left', 'left');
+                addTouch('btn-right', 'right');
+            }
+
+            draw() {
+                const grid = document.getElementById('snake-grid');
+                if (!grid) return;
+                
+                grid.innerHTML = ''; // Clear
+
+                // Draw Food
+                const foodEl = document.createElement('div');
+                foodEl.style.gridColumnStart = this.food.x + 1;
+                foodEl.style.gridRowStart = this.food.y + 1;
+                foodEl.className = "bg-red-500 rounded-full scale-75 shadow-sm";
+                grid.appendChild(foodEl);
+
+                // Draw Snake
+                this.snake.forEach((segment, index) => {
+                    const el = document.createElement('div');
+                    el.style.gridColumnStart = segment.x + 1;
+                    el.style.gridRowStart = segment.y + 1;
+                    
+                    // Style
+                    if (index === 0) { // Head
+                        el.className = "bg-brand-orange rounded-sm z-10 relative";
+                        // Eyes
+                        el.innerHTML = `<div class="absolute top-0 left-0 w-full h-full flex items-center justify-center gap-[2px]">
+                            <div class="w-1 h-1 bg-black rounded-full"></div>
+                            <div class="w-1 h-1 bg-black rounded-full"></div>
+                        </div>`;
+                    } else {
+                        el.className = "bg-orange-300 rounded-sm";
+                    }
+                    grid.appendChild(el);
+                });
+            }
+
+            gameOver() {
+                this.cleanup();
+                this.container.innerHTML = `
+                    <div class="absolute inset-0 bg-orange-50 flex items-center justify-center flex-col z-50 animate-pop">
+                        <div class="text-6xl mb-4">😵</div>
+                        <h2 class="text-4xl font-bold text-orange-600 mb-2">Game Over!</h2>
+                        <p class="text-xl text-gray-500 mb-6">Score: ${this.score}</p>
+                        <button id="retry-snake" class="bg-brand-orange text-white px-8 py-3 rounded-2xl font-bold text-xl shadow-lg hover:scale-105 transition-transform">Play Again</button>
+                    </div>
+                `;
+                document.getElementById('retry-snake').onclick = () => this.startGame();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+
     </script>
 </body>
 </html>
